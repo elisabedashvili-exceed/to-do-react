@@ -1,7 +1,10 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
+
+const numberPerPage = 4;
+let currentPage = 1;
+let numberOfPages = 1;
 
 class App extends React.Component {
   constructor(props) {
@@ -14,13 +17,54 @@ class App extends React.Component {
     this.handleCheckboxClick = this.handleCheckboxClick.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
+    this.handleSelectAll = this.handleSelectAll.bind(this);
+    this.handleUnselectAll = this.handleUnselectAll.bind(this);
+    this.handleRemoveAll = this.handleRemoveAll.bind(this);
+    this.next = this.next.bind(this);
+    this.previous = this.previous.bind(this);
+  }
+
+  next() {
+    currentPage += 1;
+    document.getElementById('page').value = currentPage;
+    this.setPageCount();
+    this.drawList();
+  }
+
+  previous() {
+    currentPage--;
+    document.getElementById('page').value = currentPage;
+    this.setPageCount();
+    this.drawList();    
+  }
+
+  setPageCount() {
+    const items = [...document.getElementById('list').children];
+    numberOfPages = Math.ceil(items.length / numberPerPage);
+  }
+
+  drawList() {
+    const items = [...document.getElementById('list').children];
+    const start = (currentPage - 1) * numberPerPage;
+    const end = start + numberPerPage;
+    items.forEach((item, index) => {
+      if (index >= start && index < end) {
+          item.className = "show";
+      } else {
+          item.className = "hide";
+      }
+    });
+    console.log(numberOfPages)
+    document.getElementById('next').disabled = (currentPage === numberOfPages) || (items.length === 0);
+    document.getElementById('previous').disabled = currentPage <= 1;
   }
 
   componentDidMount() {
     axios.get('http://localhost:3000/')
     .then(response => {
-      console.log(response.data);
       this.setState({items: response.data})
+      this.setPageCount();
+      this.drawList();
     })
     .catch(error => {
       console.log(error);
@@ -34,6 +78,9 @@ class App extends React.Component {
       .then(response => {
         this.setState({items: [...items, response.data]});
         document.getElementById("listItem").value = '';
+        this.setPageCount();
+        this.drawList();
+        if (document.getElementById('next').disabled === false) document.getElementById('next').click()
       })
       .catch(err => {
         console.log(err + " unable to save to database");
@@ -99,6 +146,7 @@ class App extends React.Component {
   }
 
   handleDeleteClick(e) {
+    const list = [...document.getElementById("list").children];
     const id = e.target.previousElementSibling.innerHTML;
     axios.delete(`http://localhost:3000/delete/${id}`)
     .then(doc => {
@@ -108,6 +156,61 @@ class App extends React.Component {
     .catch(error => {console.log(error + ' Unable to delete');
     });
     e.target.parentElement.remove();
+    
+    if (list.length % numberPerPage === 1) document.getElementById('previous').click();
+    this.setPageCount();
+    this.drawList();
+  }
+
+  handleSelectAll() {
+    const list = [...document.getElementById("list").children];
+    list.forEach(item => {
+      if (!item.children[1].checked) {
+        item.children[1].checked = true;
+        item.children[2].style = "text-decoration: line-through";
+        }
+    });
+
+    axios.put(`http://localhost:3000/selectAll`)
+    .then(res=> {
+      if(!res) console.log("No response");
+    })
+    .catch(error => {console.log(error);
+    });
+  }
+
+  handleUnselectAll() {
+    const list = [...document.getElementById("list").children];
+      list.forEach(item => {
+        if (item.children[1].checked) {
+          item.children[1].checked = false;
+          item.children[2].style = "text-decoration: none";
+          }
+      });
+  
+    axios.put(`http://localhost:3000/unSelectAll`)
+    .then(res=> {
+      if(!res) console.log("No response");
+    })
+    .catch(error => {console.log(error);
+    });
+  }
+
+  handleRemoveAll() {
+    const list = [...document.getElementById("list").children];
+      list.forEach(item => {
+        if (item.children[1].checked) {
+          item.lastElementChild.click();
+          }
+      }); 
+  
+    axios.delete(`http://localhost:3000/deleteSelected/`)
+    .then(doc => {
+      if (!doc) {console.log('Error')}
+      console.log('Successfully deleted');
+    })
+    .catch(error => {console.log(error);
+    });
   }
 
   render() {
@@ -134,13 +237,13 @@ class App extends React.Component {
         })}
       </ul>
       
-      <input type="button" id="next" value="next" />
+      <input type="button" id="next" value="next" onClick={this.next} />
       <input type="button" id="page" value="1" />
-      <input type="button" id="previous" value="previous" /><br/>
+      <input type="button" id="previous" value="previous" onClick={this.previous} /><br/>
 
-      <button id="completeBtn">Complete Tasks</button><br/>
-      <button id="uncompleteBtn">Uncomplete Tasks</button><br/>
-      <button id="removeAllBtn">Remove Completed Tasks</button>
+      <button id="completeBtn" onClick={this.handleSelectAll}>Complete Tasks</button><br/>
+      <button id="uncompleteBtn" onClick={this.handleUnselectAll}>Uncomplete Tasks</button><br/>
+      <button id="removeAllBtn" onClick={this.handleRemoveAll}>Remove Completed Tasks</button>
     </div>
     );
   }
