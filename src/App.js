@@ -1,6 +1,11 @@
 import React from 'react';
 import './App.css';
-import axios from 'axios';
+import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import { makeStyles } from '@material-ui/core/styles';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import TextField from '@material-ui/core/TextField';
 
 const numberPerPage = 4;
 let currentPage = 1;
@@ -59,34 +64,16 @@ class App extends React.Component {
     document.getElementById('previous').disabled = currentPage <= 1;
   }
 
-  componentDidMount() {
-    axios.get('http://localhost:3000/')
-    .then(response => {
-      this.setState({items: response.data})
+  addItem() {
+    if (document.getElementById("listItem").value.trim()) {
+      const items = this.state.items;  
+      this.setState({items: [...items, document.getElementById("listItem").value]});
+      document.getElementById("listItem").value = '';
       this.setPageCount();
       this.drawList();
-    })
-    .catch(error => {
-      console.log(error);
-    })
-  };
-
-  addItem() {
-    const items = this.state.items;  
-    if (document.getElementById("listItem").value.trim()) {
-      axios.post('http://localhost:3000/add', {value: document.getElementById("listItem").value, checked: false})
-      .then(response => {
-        this.setState({items: [...items, response.data]});
-        document.getElementById("listItem").value = '';
-        this.setPageCount();
-        this.drawList();
-        if (document.getElementById('next').disabled === false) document.getElementById('next').click()
-      })
-      .catch(err => {
-        console.log(err + " unable to save to database");
-      });
+      if (document.getElementById('next').disabled === false) document.getElementById('next').click()
     } else {
-      alert('Please input value')
+      alert("Please enter something :)")
     }
   }
 
@@ -100,22 +87,9 @@ class App extends React.Component {
   handleCheckboxClick(e) {
     const id = e.target.previousElementSibling.innerHTML;
     if (e.target.checked) {
-      e.target.nextElementSibling.style = "text-decoration: line-through";
-      axios.put(`http://localhost:3000/edit/${id}`, {checked: true})
-      .then(doc => {
-        if (!doc) {return doc.status(404).end(); }
-        return doc.status(200).json(doc);
-      })
-      .catch(err => console.log(err));
-  
+      e.target.nextElementSibling.style = "text-decoration: line-through";  
     } else {
       e.target.nextElementSibling.style = "text-decoration: none";
-      axios.put(`http://localhost:3000/edit/${id}`, {checked: false})
-      .then(doc => {
-        if (!doc) {return doc.status(404).end(); }
-        return doc.status(200).json(doc);
-      })
-      .catch(err => console.log(err));
     }
   };
 
@@ -133,13 +107,6 @@ class App extends React.Component {
         parElement.removeChild(inputBar);
         parElement.children[2].textContent = inputBar.value;
         target.className = "";
-  
-        axios.put(`http://localhost:3000/edit/${id}`, {value: inputBar.value})
-        .then(doc => {
-          if (!doc) {return doc.status(404).end(); }
-          return doc.status(200).json(doc);
-        })
-        .catch(err => console.log(err)); 
       }
     };
     target.className = "hide";
@@ -148,13 +115,6 @@ class App extends React.Component {
   handleDeleteClick(e) {
     const list = [...document.getElementById("list").children];
     const id = e.target.previousElementSibling.innerHTML;
-    axios.delete(`http://localhost:3000/delete/${id}`)
-    .then(doc => {
-      if (!doc) {console.log('Error')}
-      console.log('Successfully deleted');
-    })
-    .catch(error => {console.log(error + ' Unable to delete');
-    });
     e.target.parentElement.remove();
     
     if (list.length % numberPerPage === 1) document.getElementById('previous').click();
@@ -170,65 +130,51 @@ class App extends React.Component {
         item.children[2].style = "text-decoration: line-through";
         }
     });
-
-    axios.put(`http://localhost:3000/selectAll`)
-    .then(res=> {
-      if(!res) console.log("No response");
-    })
-    .catch(error => {console.log(error);
-    });
   }
 
   handleUnselectAll() {
     const list = [...document.getElementById("list").children];
-      list.forEach(item => {
-        if (item.children[1].checked) {
-          item.children[1].checked = false;
-          item.children[2].style = "text-decoration: none";
-          }
-      });
-  
-    axios.put(`http://localhost:3000/unSelectAll`)
-    .then(res=> {
-      if(!res) console.log("No response");
-    })
-    .catch(error => {console.log(error);
+    list.forEach(item => {
+      if (item.children[1].checked) {
+        item.children[1].checked = false;
+        item.children[2].style = "text-decoration: none";
+      }
     });
   }
 
   handleRemoveAll() {
     const list = [...document.getElementById("list").children];
-      list.forEach(item => {
-        if (item.children[1].checked) {
-          item.lastElementChild.click();
-          }
-      }); 
-  
-    axios.delete(`http://localhost:3000/deleteSelected/`)
-    .then(doc => {
-      if (!doc) {console.log('Error')}
-      console.log('Successfully deleted');
-    })
-    .catch(error => {console.log(error);
-    });
+    list.forEach(item => {
+      if (item.children[1].checked) {
+        item.lastElementChild.click();
+      }
+    }); 
   }
 
   render() {
     return (
     <div className="App">
       <h1 className="title">To-Do List</h1>
-      <input id="listItem" placeholder="Write Down..." onKeyPress={this.handleKeyPress}/>
-      <button id="button" type="button" onClick={this.addItem}>
-          Click to add
-      </button>
-
+      <TextField
+          id="listItem"
+          label="Add New Task"
+          placeholder="Write Down..."
+          multiline
+          variant="outlined"
+          size="small"
+          onKeyPress={this.handleKeyPress}
+        />
+      <Fab size="small" color="primary" aria-label="add" onClick={this.addItem}>
+        <AddIcon />
+      </Fab>
+      
       <ul id="list">
         {this.state.items.map(item => {
           return (
             <li key={item._id}>
               <span className="id">{item._id}</span>
               <input type="checkbox" onClick={this.handleCheckboxClick} defaultChecked={item.checked === true ? true : false}></input>
-              <label style={ { textDecoration: item.checked === true ? 'line-through' : 'none' } }>{item.value}</label>
+              <label style={ { textDecoration: item.checked === true ? 'line-through' : 'none' } }>{item}</label>
               <button id="editButton" onClick={this.handleEditClick}>Edit </button>
               <span className="id">{item._id}</span>
               <button id="deleteButton" onClick={this.handleDeleteClick}>Delete</button>
@@ -241,9 +187,16 @@ class App extends React.Component {
       <input type="button" id="page" value="1" />
       <input type="button" id="previous" value="previous" onClick={this.previous} /><br/>
 
-      <button id="completeBtn" onClick={this.handleSelectAll}>Complete Tasks</button><br/>
-      <button id="uncompleteBtn" onClick={this.handleUnselectAll}>Uncomplete Tasks</button><br/>
-      <button id="removeAllBtn" onClick={this.handleRemoveAll}>Remove Completed Tasks</button>
+      <ButtonGroup
+        orientation="vertical"
+        color="primary"
+        aria-label="vertical contained primary button group"
+        variant="contained"
+      >
+        <Button id="completeBtn" onClick={this.handleSelectAll}>Complete Tasks</Button>
+        <Button id="uncompleteBtn" onClick={this.handleUnselectAll}>Uncomplete Tasks</Button>
+        <Button id="removeAllBtn" onClick={this.handleRemoveAll}>Remove Completed Tasks</Button>
+      </ButtonGroup>
     </div>
     );
   }
