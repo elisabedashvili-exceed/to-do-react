@@ -2,10 +2,20 @@ import React from 'react';
 import './App.css';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import clsx from 'clsx';
+import Checkbox from '@material-ui/core/Checkbox';
 import { makeStyles } from '@material-ui/core/styles';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+
+const li = document.getElementById("item");
+const checkboxElement = document.getElementById("checkbox");
 
 const numberPerPage = 4;
 let currentPage = 1;
@@ -59,7 +69,6 @@ class App extends React.Component {
           item.className = "hide";
       }
     });
-    console.log(numberOfPages)
     document.getElementById('next').disabled = (currentPage === numberOfPages) || (items.length === 0);
     document.getElementById('previous').disabled = currentPage <= 1;
   }
@@ -85,28 +94,30 @@ class App extends React.Component {
   }
 
   handleCheckboxClick(e) {
-    const id = e.target.previousElementSibling.innerHTML;
+    //const id = e.target.previousElementSibling.innerHTML;
+    const label = e.target.parentElement.parentElement.parentElement.children[2];
     if (e.target.checked) {
-      e.target.nextElementSibling.style = "text-decoration: line-through";  
+      label.style = "text-decoration: line-through"  
     } else {
-      e.target.nextElementSibling.style = "text-decoration: none";
+      label.style = "text-decoration: none"
     }
   };
 
   handleEditClick(e) {
-    let target = e.target;
+    let target = e.target.closest("#editButton");
     let parElement = target.parentElement;
+    const edit = document.getElementById("editButton");
     const inputBar = document.createElement("input");
     inputBar.placeholder = "Please add items...";
     inputBar.size = Math.max(parElement.children[2].textContent.length + 2, inputBar.placeholder.length);
-    parElement.insertBefore(inputBar, e.target);
+    parElement.insertBefore(inputBar, target);
     inputBar.value = parElement.children[2].textContent;
-    const id = e.target.nextElementSibling.innerHTML;
+    //const id = e.target.nextElementSibling.innerHTML;
     inputBar.onkeyup = (event) => {
       if (event.keyCode === 13 && inputBar.value.trim()) {
         parElement.removeChild(inputBar);
         parElement.children[2].textContent = inputBar.value;
-        target.className = "";
+        target.className = "MuiButtonBase-root MuiIconButton-root";
       }
     };
     target.className = "hide";
@@ -114,8 +125,8 @@ class App extends React.Component {
 
   handleDeleteClick(e) {
     const list = [...document.getElementById("list").children];
-    const id = e.target.previousElementSibling.innerHTML;
-    e.target.parentElement.remove();
+    //const id = e.target.previousElementSibling.innerHTML;
+    e.target.closest("li").remove();
     
     if (list.length % numberPerPage === 1) document.getElementById('previous').click();
     this.setPageCount();
@@ -123,30 +134,24 @@ class App extends React.Component {
   }
 
   handleSelectAll() {
-    const list = [...document.getElementById("list").children];
-    list.forEach(item => {
-      if (!item.children[1].checked) {
-        item.children[1].checked = true;
-        item.children[2].style = "text-decoration: line-through";
-        }
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(item => {
+      if (!item.checked) {item.click()}
     });
   }
 
   handleUnselectAll() {
-    const list = [...document.getElementById("list").children];
-    list.forEach(item => {
-      if (item.children[1].checked) {
-        item.children[1].checked = false;
-        item.children[2].style = "text-decoration: none";
-      }
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(item => {
+      if (item.checked) {item.click()}
     });
   }
 
   handleRemoveAll() {
-    const list = [...document.getElementById("list").children];
-    list.forEach(item => {
-      if (item.children[1].checked) {
-        item.lastElementChild.click();
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(item => {
+      if (item.checked) {
+        item.closest("li").lastElementChild.click();
       }
     }); 
   }
@@ -164,28 +169,41 @@ class App extends React.Component {
           size="small"
           onKeyPress={this.handleKeyPress}
         />
-      <Fab size="small" color="primary" aria-label="add" onClick={this.addItem}>
+      <Fab id="button" size="small" color="primary" aria-label="add" onClick={this.addItem}>
         <AddIcon />
       </Fab>
       
       <ul id="list">
         {this.state.items.map(item => {
           return (
-            <li key={item._id}>
+            <li key={item._id} id="item">
               <span className="id">{item._id}</span>
-              <input type="checkbox" onClick={this.handleCheckboxClick} defaultChecked={item.checked === true ? true : false}></input>
-              <label style={ { textDecoration: item.checked === true ? 'line-through' : 'none' } }>{item}</label>
-              <button id="editButton" onClick={this.handleEditClick}>Edit </button>
+              <Checkbox
+                id="checkbox"
+                disableRipple
+                color="default"
+                inputProps={{ 'aria-label': 'decorative checkbox' }}
+                onClick={this.handleCheckboxClick}
+                defaultChecked={item.checked === true ? true : false}
+              />
+              <label id="label" style={ { textDecoration: item.checked === true ? 'line-through' : 'none' } }>{item}</label>
+              
+              <IconButton id="editButton" onClick={this.handleEditClick} aria-label="edit">
+                <EditIcon fontSize="small"/>
+              </IconButton>
               <span className="id">{item._id}</span>
-              <button id="deleteButton" onClick={this.handleDeleteClick}>Delete</button>
+              <IconButton id="deleteButton" onClick={this.handleDeleteClick} aria-label="delete">
+                <DeleteIcon fontSize="small"/>
+              </IconButton>
+              
             </li>
           );
         })}
       </ul>
       
-      <input type="button" id="next" value="next" onClick={this.next} />
+      <Button id="previous" size="small" onClick={this.previous}><KeyboardArrowLeft /></Button>
       <input type="button" id="page" value="1" />
-      <input type="button" id="previous" value="previous" onClick={this.previous} /><br/>
+      <Button id="next" size="small" onClick={this.next}><KeyboardArrowRight /></Button>
 
       <ButtonGroup
         orientation="vertical"
