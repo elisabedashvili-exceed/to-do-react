@@ -14,10 +14,7 @@ import TextField from '@material-ui/core/TextField';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
-const li = document.getElementById("item");
-const checkboxElement = document.getElementById("checkbox");
-
-const numberPerPage = 4;
+const numberPerPage = 5;
 let currentPage = 1;
 let numberOfPages = 1;
 
@@ -62,6 +59,7 @@ class App extends React.Component {
     const items = [...document.getElementById('list').children];
     const start = (currentPage - 1) * numberPerPage;
     const end = start + numberPerPage;
+
     items.forEach((item, index) => {
       if (index >= start && index < end) {
           item.className = "show";
@@ -73,14 +71,22 @@ class App extends React.Component {
     document.getElementById('previous').disabled = currentPage <= 1;
   }
 
+  componentDidMount() {
+    this.setPageCount();
+    this.drawList();
+  }
+
+  componentDidUpdate() {
+    this.setPageCount();
+    this.drawList();
+    if (this.state.items.length % numberPerPage === 1) document.getElementById('next').click()
+  }
+
   addItem() {
     if (document.getElementById("listItem").value.trim()) {
       const items = this.state.items;  
       this.setState({items: [...items, document.getElementById("listItem").value]});
       document.getElementById("listItem").value = '';
-      this.setPageCount();
-      this.drawList();
-      if (document.getElementById('next').disabled === false) document.getElementById('next').click()
     } else {
       alert("Please enter something :)")
     }
@@ -201,9 +207,11 @@ class App extends React.Component {
         })}
       </ul>
       
-      <Button id="previous" size="small" onClick={this.previous}><KeyboardArrowLeft /></Button>
+      
+      <input type="button" id="previous" onClick={this.previous} value="Prev" />
       <input type="button" id="page" value="1" />
-      <Button id="next" size="small" onClick={this.next}><KeyboardArrowRight /></Button>
+      <input type="button" id="next" onClick={this.next} value="Next" />
+      <br />
 
       <ButtonGroup
         orientation="vertical"
