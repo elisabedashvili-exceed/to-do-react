@@ -2,63 +2,48 @@ import React from 'react';
 import './App.css';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import clsx from 'clsx';
 import Checkbox from '@material-ui/core/Checkbox';
-import { makeStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-
-const numberPerPage = 5;
-let currentPage = 1;
-let numberOfPages = 1;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      items: []
+      items: [],
+      numberPerPage: 5,
+      currentPage: 1
     };
-    this.addItem = this.addItem.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleCheckboxClick = this.handleCheckboxClick.bind(this);
-    this.handleEditClick = this.handleEditClick.bind(this);
-    this.handleDeleteClick = this.handleDeleteClick.bind(this);
-    this.handleSelectAll = this.handleSelectAll.bind(this);
-    this.handleUnselectAll = this.handleUnselectAll.bind(this);
-    this.handleRemoveAll = this.handleRemoveAll.bind(this);
-    this.next = this.next.bind(this);
-    this.previous = this.previous.bind(this);
   }
 
-  next() {
-    currentPage += 1;
-    document.getElementById('page').value = currentPage;
+  next = () => {
+    const state = this.state;
+    this.setState({...state, currentPage: state.currentPage + 1});
+    document.getElementById('page').value = this.state.currentPage;
     this.setPageCount();
     this.drawList();
   }
 
-  previous() {
-    currentPage--;
-    document.getElementById('page').value = currentPage;
+  previous = () => {
+    const state = this.state;
+    this.setState({...state, currentPage: state.currentPage - 1});
+    document.getElementById('page').value = this.state.currentPage;
     this.setPageCount();
     this.drawList();    
   }
 
-  setPageCount() {
-    const items = [...document.getElementById('list').children];
-    numberOfPages = Math.ceil(items.length / numberPerPage);
+  setPageCount = () => {
+    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
   }
 
-  drawList() {
+  drawList = () => {
     const items = [...document.getElementById('list').children];
-    const start = (currentPage - 1) * numberPerPage;
-    const end = start + numberPerPage;
+    const start = (this.state.currentPage - 1) * this.state.numberPerPage;
+    const end = start + this.state.numberPerPage;
 
     items.forEach((item, index) => {
       if (index >= start && index < end) {
@@ -67,22 +52,27 @@ class App extends React.Component {
           item.className = "hide";
       }
     });
-    document.getElementById('next').disabled = (currentPage === numberOfPages) || (items.length === 0);
-    document.getElementById('previous').disabled = currentPage <= 1;
+
+    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
+    document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
+    document.getElementById('previous').disabled = this.state.currentPage <= 1;
+
+    if (this.state.items.length % this.state.numberPerPage === 1) document.getElementById('next').click()
   }
 
   componentDidMount() {
-    this.setPageCount();
-    this.drawList();
+    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
+    document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
+    document.getElementById('previous').disabled = this.state.currentPage <= 1;
   }
 
   componentDidUpdate() {
     this.setPageCount();
     this.drawList();
-    if (this.state.items.length % numberPerPage === 1) document.getElementById('next').click()
+    if (this.state.items.length % this.state.numberPerPage === 1) document.getElementById('next').click()
   }
 
-  addItem() {
+  addItem = () => {
     if (document.getElementById("listItem").value.trim()) {
       const items = this.state.items;  
       this.setState({items: [...items, document.getElementById("listItem").value]});
@@ -92,14 +82,14 @@ class App extends React.Component {
     }
   }
 
-  handleKeyPress(e) {
+  handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       this.addItem();
     }
   }
 
-  handleCheckboxClick(e) {
+  handleCheckboxClick = (e) => {
     //const id = e.target.previousElementSibling.innerHTML;
     const label = e.target.parentElement.parentElement.parentElement.children[2];
     if (e.target.checked) {
@@ -109,10 +99,9 @@ class App extends React.Component {
     }
   };
 
-  handleEditClick(e) {
+  handleEditClick = (e) => {
     let target = e.target.closest("#editButton");
     let parElement = target.parentElement;
-    const edit = document.getElementById("editButton");
     const inputBar = document.createElement("input");
     inputBar.placeholder = "Please add items...";
     inputBar.size = Math.max(parElement.children[2].textContent.length + 2, inputBar.placeholder.length);
@@ -129,31 +118,31 @@ class App extends React.Component {
     target.className = "hide";
   }
 
-  handleDeleteClick(e) {
+  handleDeleteClick = (e) => {
     const list = [...document.getElementById("list").children];
     //const id = e.target.previousElementSibling.innerHTML;
     e.target.closest("li").remove();
     
-    if (list.length % numberPerPage === 1) document.getElementById('previous').click();
+    if (list.length % this.state.numberPerPage === 1) document.getElementById('previous').click();
     this.setPageCount();
     this.drawList();
   }
 
-  handleSelectAll() {
+  handleSelectAll = () => {
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(item => {
       if (!item.checked) {item.click()}
     });
   }
 
-  handleUnselectAll() {
+  handleUnselectAll = () => {
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(item => {
       if (item.checked) {item.click()}
     });
   }
 
-  handleRemoveAll() {
+  handleRemoveAll = () => {
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(item => {
       if (item.checked) {
