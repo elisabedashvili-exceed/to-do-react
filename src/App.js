@@ -15,32 +15,34 @@ class App extends React.Component {
     super(props);
     this.state = {
       items: [],
-      numberPerPage: 5,
+      numberPerPage: 3,
       currentPage: 1
     };
   }
 
   next = () => {
+    console.log("--------next")
     const state = this.state;
-    this.setState({...state, currentPage: state.currentPage + 1});
-    document.getElementById('page').value = this.state.currentPage;
-    this.setPageCount();
-    this.drawList();
+    this.setState({currentPage: state.currentPage + 1});
+    /* this.setPageCount();
+    this.drawList(); */
   }
 
   previous = () => {
+    console.log("--------prev")
     const state = this.state;
-    this.setState({...state, currentPage: state.currentPage - 1});
-    document.getElementById('page').value = this.state.currentPage;
-    this.setPageCount();
-    this.drawList();    
+    this.setState({currentPage: state.currentPage - 1});
+    /* this.setPageCount();
+    this.drawList();   */  
   }
 
   setPageCount = () => {
     let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
+    console.log("--------------setPageCount")
   }
 
   drawList = () => {
+    console.log("--------drawList")
     const items = [...document.getElementById('list').children];
     const start = (this.state.currentPage - 1) * this.state.numberPerPage;
     const end = start + this.state.numberPerPage;
@@ -56,8 +58,8 @@ class App extends React.Component {
     let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
     document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
     document.getElementById('previous').disabled = this.state.currentPage <= 1;
-
-    if (this.state.items.length % this.state.numberPerPage === 1) document.getElementById('next').click()
+    console.log("--draw------state " + this.state.items)
+    console.log("--draw------currentpage " + this.state.currentPage)
   }
 
   componentDidMount() {
@@ -69,7 +71,6 @@ class App extends React.Component {
   componentDidUpdate() {
     this.setPageCount();
     this.drawList();
-    if (this.state.items.length % this.state.numberPerPage === 1) document.getElementById('next').click()
   }
 
   addItem = () => {
@@ -80,6 +81,8 @@ class App extends React.Component {
     } else {
       alert("Please enter something :)")
     }
+    let numberOfPages = Math.ceil((this.state.items.length + 1) / this.state.numberPerPage);
+    this.setState({currentPage: numberOfPages})
   }
 
   handleKeyPress = (e) => {
@@ -152,6 +155,7 @@ class App extends React.Component {
   }
 
   render() {
+    
     return (
     <div className="App">
       <h1 className="title">To-Do List</h1>
@@ -198,7 +202,7 @@ class App extends React.Component {
       
       
       <input type="button" id="previous" onClick={this.previous} value="Prev" />
-      <input type="button" id="page" value="1" />
+      <input type="button" id="page" value={this.state.currentPage} />
       <input type="button" id="next" onClick={this.next} value="Next" />
       <br />
 
