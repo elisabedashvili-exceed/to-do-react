@@ -14,8 +14,8 @@ class App extends Component {
     numberPerPage: 10,
     currentPage: 1
   };
+
   inputRef = createRef();
-  deleteRef = createRef();
   // next = () => {
   //   console.log("--------next")
   //   const state = this.state;
@@ -103,31 +103,22 @@ class App extends Component {
   //   }
   // };
   //
-  // handleEditClick = (e) => {
-  //   let target = e.target.closest("#editButton");
-  //   let parElement = target.parentElement;
-  //   const inputBar = document.createElement("input");
-  //   inputBar.placeholder = "Please add items...";
-  //   inputBar.size = Math.max(parElement.children[2].textContent.length + 2, inputBar.placeholder.length);
-  //   parElement.insertBefore(inputBar, target);
-  //   inputBar.value = parElement.children[2].textContent;
-  //   //const id = e.target.nextElementSibling.innerHTML;
-  //   inputBar.onkeyup = (event) => {
-  //     if (event.keyCode === 13 && inputBar.value.trim()) {
-  //       parElement.removeChild(inputBar);
-  //       parElement.children[2].textContent = inputBar.value;
-  //       target.className = "MuiButtonBase-root MuiIconButton-root";
-  //     }
-  //   };
-  //   target.className = "hide";
-  // };
-  //
+
+  handleEdit = (e, id, newValue) => {
+    if (e.key === "Enter" && newValue.trim()) {
+      const items = this.state.items.map(item =>
+        (item.id !== id) ? item : {...item, value: newValue})
+        this.setState({...this.state, items})     
+    }  
+  };
+  
   handleDeleteClick = (id) => {
-    const state = this.state;
-    const items = this.state.items.filter(
-      item => item.id !== id
-      )
-      this.setState({...state, items})
+    const { state } = this;
+    const { numberPerPage } = this.state;
+    const items = this.state.items.filter(item => item.id !== id)
+      this.setState({...state, 
+        items, 
+        currentPage: Math.ceil((items.length + 1) / numberPerPage)})
   }
   //
   // handleSelectAll = () => {
@@ -173,7 +164,11 @@ class App extends Component {
         <ul id="list">
           {items.map(item => {
             return (
-              <TodoItem item={item} key={item._id} delete={this.handleDeleteClick}/>
+              <TodoItem 
+                item={item} 
+                key={item._id} 
+                remove={this.handleDeleteClick} 
+                edit={this.handleEdit}/>
             );
           })}
         </ul>
