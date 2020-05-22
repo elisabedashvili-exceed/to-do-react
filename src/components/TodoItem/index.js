@@ -11,10 +11,10 @@ class TodoItem extends Component {
   hideShowEditInput = () => {
     if (this.editInputRef.current.style.visibility === "visible") {
       this.editInputRef.current.style.visibility = "hidden";
-      document.querySelector("#item > div").style.visibility = "hidden";
+      this.editInputRef.current.closest("#item > div").style.visibility = "hidden";
     } else {
       this.editInputRef.current.style.visibility = "visible";
-      document.querySelector("#item > div").style.visibility = "visible";
+      this.editInputRef.current.closest("#item > div").style.visibility = "visible";
     }
   }
   
@@ -47,7 +47,7 @@ class TodoItem extends Component {
             edit(e, item.id, this.editInputRef.current.value);
             if (e.key === "Enter") {
               this.editInputRef.current.style.visibility = "hidden";
-              document.querySelector("#item > div").style.visibility = "hidden";
+              this.editInputRef.current.closest("#item > div").style.visibility = "hidden";
             }
             }} />
         <IconButton id="editButton" onClick={this.hideShowEditInput} aria-label="edit">
