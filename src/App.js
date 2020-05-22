@@ -7,6 +7,8 @@ import TextField from '@material-ui/core/TextField';
 import TodoItem from './components/TodoItem';
 import './App.css';
 import { v4 } from 'uuid';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 class App extends Component {
   state = {
@@ -113,13 +115,12 @@ class App extends Component {
   };
   
   handleDeleteClick = (id) => {
-    const { state } = this;
-    const { numberPerPage } = this.state;
-    const items = this.state.items.filter(item => item.id !== id)
-      this.setState({...state, 
-        items, 
-        currentPage: Math.ceil((items.length + 1) / numberPerPage)})
-  }
+    const { numberPerPage, items } = this.state;
+    this.setState({
+      items: items.filter(item => item.id !== id),
+      currentPage: Math.ceil((items.length + 1) / numberPerPage)
+    })
+  };
   //
   // handleSelectAll = () => {
   //   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -162,19 +163,20 @@ class App extends Component {
           <AddIcon/>
         </Fab>
         <ul id="list">
-          {items.map(item => {
+          {items.map((item, i) => {
             return (
               <TodoItem 
                 item={item} 
-                key={item._id} 
+                key={i} 
                 remove={this.handleDeleteClick} 
                 edit={this.handleEdit}/>
             );
           })}
         </ul>
-        <input type="button" id="previous" onClick={this.previous} value="Prev"/>
-        <input type="button" id="page" value={this.state.currentPage}/>
-        <input type="button" id="next" onClick={this.next} value="Next"/>
+
+        <KeyboardArrowLeftIcon fontSize="small" id="previous" onClick={this.previous}/>
+        <input style={{verticalAlign: "text-top"}} type="button" value={this.state.currentPage}/>
+        <KeyboardArrowRightIcon fontSize="small" id="next" onClick={this.next}/>
         <br/>
         <ButtonGroup
           orientation="vertical"

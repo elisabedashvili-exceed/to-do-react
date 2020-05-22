@@ -3,15 +3,18 @@ import Checkbox from "@material-ui/core/Checkbox";
 import IconButton from "@material-ui/core/IconButton";
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import TextField from '@material-ui/core/TextField';
 
 class TodoItem extends Component {
   editInputRef = createRef();
 
   hideShowEditInput = () => {
-    if (this.editInputRef.current.className === "hide") {
-      this.editInputRef.current.className = "show"
+    if (this.editInputRef.current.style.visibility === "visible") {
+      this.editInputRef.current.style.visibility = "hidden";
+      document.querySelector("#item > div").style.visibility = "hidden";
     } else {
-      this.editInputRef.current.className = "hide"
+      this.editInputRef.current.style.visibility = "visible";
+      document.querySelector("#item > div").style.visibility = "visible";
     }
   }
   
@@ -34,17 +37,19 @@ class TodoItem extends Component {
         >
           {item.value}
         </label>
-        <input id="editInput" 
-          className="hide"
-          type="text" 
-          size={Math.max(item.value.length, 15)} 
+        <TextField style={{visibility: "hidden"}}
+          id="outlined-basic" 
+          variant="outlined"
+          size="small"
           defaultValue={item.value} 
-          ref={this.editInputRef}
+          inputRef={this.editInputRef}
           onKeyPress={(e)=> {
             edit(e, item.id, this.editInputRef.current.value);
-            if (e.key === "Enter") this.editInputRef.current.className = "hide"; 
-            }}>
-        </input>
+            if (e.key === "Enter") {
+              this.editInputRef.current.style.visibility = "hidden";
+              document.querySelector("#item > div").style.visibility = "hidden";
+            }
+            }} />
         <IconButton id="editButton" onClick={this.hideShowEditInput} aria-label="edit">
           <EditIcon fontSize="small"/>
         </IconButton>
