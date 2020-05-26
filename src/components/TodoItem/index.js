@@ -6,6 +6,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import TextField from '@material-ui/core/TextField';
 
 class TodoItem extends Component {
+  state = {
+    checked: false
+  }
   editInputRef = createRef();
 
   hideShowEditInput = () => {
@@ -29,7 +32,7 @@ class TodoItem extends Component {
           color="default"
           inputProps={{ 'aria-label': 'decorative checkbox' }}
           onClick={this.handleCheckboxClick}
-          defaultChecked={item.checked === true ? true : false}
+          defaultChecked={this.state.checked === true ? true : false}
         />
         <label
           id="label"
@@ -44,9 +47,10 @@ class TodoItem extends Component {
           defaultValue={item.value} 
           inputRef={this.editInputRef}
           onKeyPress={(e)=> {
-            edit(e, item.id, this.editInputRef.current.value);
+            edit(e, item.id, e.target.value);
+            
             if (e.key === "Enter") {
-              this.editInputRef.current.style.visibility = "hidden";
+              e.target.style.visibility = "hidden";
               this.editInputRef.current.closest("#item > div").style.visibility = "hidden";
             }
             }} />
