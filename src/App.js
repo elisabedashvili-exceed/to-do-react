@@ -9,14 +9,12 @@ import './App.css';
 import { v4 } from 'uuid';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-
 class App extends Component {
   state = {
     items: [],
     numberPerPage: 10,
     currentPage: 1
   };
-
   inputRef = createRef();
   // next = () => {
   //   console.log("--------next")
@@ -105,15 +103,13 @@ class App extends Component {
   //   }
   // };
   //
-
   handleEdit = (e, id, newValue) => {
     if (e.key === "Enter" && newValue.trim()) {
       const items = this.state.items.map(item =>
         (item.id !== id) ? item : {...item, value: newValue})
-        this.setState({...this.state, items})     
-    }  
+        this.setState({...this.state, items})
+    }
   };
-  
   handleDeleteClick = (id) => {
     const { numberPerPage, items } = this.state;
     this.setState({
@@ -163,17 +159,16 @@ class App extends Component {
           <AddIcon/>
         </Fab>
         <ul id="list">
-          {items.map((item, i) => {
+          {items.map((item) => {
             return (
-              <TodoItem 
-                item={item} 
-                key={i} 
-                remove={this.handleDeleteClick} 
+              <TodoItem
+                item={item}
+                key={item.id}
+                remove={this.handleDeleteClick}
                 edit={this.handleEdit}/>
             );
           })}
         </ul>
-
         <KeyboardArrowLeftIcon fontSize="small" id="previous" onClick={this.previous}/>
         <input style={{verticalAlign: "text-top"}} type="button" value={this.state.currentPage}/>
         <KeyboardArrowRightIcon fontSize="small" id="next" onClick={this.next}/>
