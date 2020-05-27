@@ -93,22 +93,18 @@ class App extends Component {
       this.addItem();
     }
   };
-  //
-  // handleCheckboxClick = (e) => {
-  //   const label = e.target.parentElement.parentElement.parentElement.children[2];
-  //   if (e.target.checked) {
-  //     label.style = "text-decoration: line-through"
-  //   } else {
-  //     label.style = "text-decoration: none"
-  //   }
-  // };
-  //
+  
+  handleCheckboxClick = (id) => {
+    const items = this.state.items.map(item =>
+      (item.id !== id) ? item : {...item, checked: (item.checked === false ? true : false)})
+      this.setState({...this.state, items})
+      setTimeout(()=> console.log(this.state.items), 500)
+  };
+  
   handleEdit = (e, id, newValue) => {
-    if (e.key === "Enter" && newValue.trim()) {
-      const items = this.state.items.map(item =>
-        (item.id !== id) ? item : {...item, value: newValue})
-        this.setState({...this.state, items})
-    }
+    const items = this.state.items.map(item =>
+      (item.id !== id) ? item : {...item, value: newValue})
+      this.setState({...this.state, items})
   };
   handleDeleteClick = (id) => {
     const { numberPerPage, items } = this.state;
@@ -165,7 +161,8 @@ class App extends Component {
                 item={item}
                 key={item.id}
                 remove={this.handleDeleteClick}
-                edit={this.handleEdit}/>
+                edit={this.handleEdit}
+                check={this.handleCheckboxClick}/>
             );
           })}
         </ul>
