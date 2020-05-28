@@ -12,7 +12,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 class App extends Component {
   state = {
     items: [],
-    numberPerPage: 10,
+    numberPerPage: 3,
     currentPage: 1
   };
   inputRef = createRef();
@@ -89,10 +89,10 @@ class App extends Component {
       this.setState({items})
   };
   handleDeleteClick = (id) => {
-    const { numberPerPage, items } = this.state;
+    const { numberPerPage, items, currentPage } = this.state;
     this.setState({
       items: items.filter(item => item.id !== id),
-      currentPage: Math.ceil((items.length - 1) / numberPerPage)
+      currentPage: items.length % numberPerPage === 1 ? Math.ceil((items.length - 1) / numberPerPage) : currentPage
     })
   };
 
@@ -107,14 +107,14 @@ class App extends Component {
   }
 
   handleRemoveAll = () => {
-    const { numberPerPage, items } = this.state;
+    const { numberPerPage, items, currentPage } = this.state;
     const checkedItems = [];
       this.state.items.forEach(item=> {
         if (item.checked) checkedItems.push(item)
       })
     this.setState({
       items: items.filter(item => item.checked === false),
-      currentPage: Math.ceil((items.length - checkedItems.length) / numberPerPage)
+      currentPage: items.length % numberPerPage === 1 ? Math.ceil((items.length - checkedItems.length) / numberPerPage) : currentPage
     })
   }
 
