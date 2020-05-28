@@ -97,14 +97,14 @@ class App extends Component {
   handleCheckboxClick = (id) => {
     const items = this.state.items.map(item =>
       (item.id !== id) ? item : {...item, checked: (item.checked === false ? true : false)})
-      this.setState({...this.state, items})
+      this.setState({items})
       setTimeout(()=> console.log(this.state.items), 500)
   };
   
   handleEdit = (e, id, newValue) => {
     const items = this.state.items.map(item =>
       (item.id !== id) ? item : {...item, value: newValue})
-      this.setState({...this.state, items})
+      this.setState({items})
   };
   handleDeleteClick = (id) => {
     const { numberPerPage, items } = this.state;
