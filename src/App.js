@@ -112,29 +112,25 @@ class App extends Component {
       currentPage: Math.ceil((items.length + 1) / numberPerPage)
     })
   };
-  //
-  // handleSelectAll = () => {
-  //   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  //   checkboxes.forEach(item => {
-  //     if (!item.checked) {item.click()}
-  //   });
-  // }
-  //
-  // handleUnselectAll = () => {
-  //   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  //   checkboxes.forEach(item => {
-  //     if (item.checked) {item.click()}
-  //   });
-  // }
-  //
-  // handleRemoveAll = () => {
-  //   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  //   checkboxes.forEach(item => {
-  //     if (item.checked) {
-  //       item.closest("li").lastElementChild.click();
-  //     }
-  //   });
-  // }
+
+  handleSelectAll = () => {
+    const items = this.state.items.map(item => { return {...item, checked: true} })
+    this.setState({items})
+  }
+
+  handleUnselectAll = () => {
+    const items = this.state.items.map(item => { return {...item, checked: false} })
+    this.setState({items})
+  }
+
+  handleRemoveAll = () => {
+    const { numberPerPage, items } = this.state;
+    this.setState({
+      items: items.filter(item => item.checked === false),
+      currentPage: Math.ceil((items.length + 1) / numberPerPage)
+    })
+  }
+
   render() {
     const { items } = this.state;
     return (

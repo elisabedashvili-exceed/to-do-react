@@ -61,7 +61,7 @@ class TodoItem extends Component {
                 color="default"
                 inputProps={{ 'aria-label': 'decorative checkbox' }}
                 onClick={()=> check(item.id)}
-                checked={item.checked === false ? false : true}
+                checked={item.checked}
               />
               <label style={{ textDecoration: item.checked ? 'line-through' : 'none' }}>{item.value}</label>
               
