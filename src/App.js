@@ -16,52 +16,44 @@ class App extends Component {
     currentPage: 1
   };
   inputRef = createRef();
-  // next = () => {
-  //   console.log("--------next")
-  //   const state = this.state;
-  //   this.setState({currentPage: state.currentPage + 1});
-  // }
-  //
-  // previous = () => {
-  //   console.log("--------prev")
-  //   const state = this.state;
-  //   this.setState({currentPage: state.currentPage - 1});
-  // }
-  //
-  // setPageCount = () => {
-  //   let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
-  //   console.log("--------------setPageCount")
-  // }
-  //
-  // drawList = () => {
-  //   const items = [...document.getElementById('list').children];
-  //   const start = (this.state.currentPage - 1) * this.state.numberPerPage;
-  //   const end = start + this.state.numberPerPage;
-  //
-  //   items.forEach((item, index) => {
-  //     if (index >= start && index < end) {
-  //         item.className = "show";
-  //     } else {
-  //         item.className = "hide";
-  //     }
-  //   });
-  //
-  //   let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
-  //   document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
-  //   document.getElementById('previous').disabled = this.state.currentPage <= 1;
-  // };
-  //
-  // componentDidMount() {
-  //   let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
-  //   document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
-  //   document.getElementById('previous').disabled = this.state.currentPage <= 1;
-  // }
-  //
-  // componentDidUpdate() {
-  //   this.setPageCount();
-  //   this.drawList();
-  // }
-  //
+
+  next = () => {
+    console.log("--------next")
+    const {currentPage} = this.state;
+    this.setState({currentPage: currentPage + 1});
+  }
+  previous = () => {
+    console.log("--------prev")
+    const {currentPage} = this.state;
+    this.setState({currentPage: currentPage - 1});
+  }
+  
+  drawList = () => {
+    const items = [...document.getElementById('list').children];
+    const start = (this.state.currentPage - 1) * this.state.numberPerPage;
+    const end = start + this.state.numberPerPage;
+    items.forEach((item, index) => {
+    if (index >= start && index < end) {
+      item.className = "show";
+    } else {
+      item.className = "hide";
+    }
+  });
+    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
+    document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
+    document.getElementById('previous').disabled = this.state.currentPage <= 1;
+  };
+  
+  componentDidMount() {
+    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
+    document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
+    document.getElementById('previous').disabled = this.state.currentPage <= 1;
+  }
+  
+  componentDidUpdate() {
+    this.drawList();
+  }
+
   addItem = () => {
     const { items, numberPerPage } = this.state;
     if (this.inputRef.current.value.trim()) {
@@ -76,17 +68,8 @@ class App extends Component {
     } else {
       alert("Please enter something :)")
     }
-    // if (document.getElementById("listItem").value.trim()) {
-    //   const items = this.state.items;
-    //   this.setState({items: [...items, document.getElementById("listItem").value]});
-    //   document.getElementById("listItem").value = '';
-    // } else {
-    //   alert("Please enter something :)")
-    // }
-    // let numberOfPages = Math.ceil((this.state.items.length + 1) / this.state.numberPerPage);
-    // this.setState({currentPage: numberOfPages})
   };
-  //
+
   handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -109,7 +92,7 @@ class App extends Component {
     const { numberPerPage, items } = this.state;
     this.setState({
       items: items.filter(item => item.id !== id),
-      currentPage: Math.ceil((items.length + 1) / numberPerPage)
+      currentPage: Math.ceil((items.length - 1) / numberPerPage)
     })
   };
 
@@ -125,14 +108,19 @@ class App extends Component {
 
   handleRemoveAll = () => {
     const { numberPerPage, items } = this.state;
+    const checkedItems = [];
+      this.state.items.forEach(item=> {
+        if (item.checked) checkedItems.push(item)
+      })
     this.setState({
       items: items.filter(item => item.checked === false),
-      currentPage: Math.ceil((items.length + 1) / numberPerPage)
+      currentPage: Math.ceil((items.length - checkedItems.length) / numberPerPage)
     })
   }
 
   render() {
     const { items } = this.state;
+    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
     return (
       <div className="App">
         <h1 className="title">To-Do List</h1>
@@ -161,9 +149,19 @@ class App extends Component {
             );
           })}
         </ul>
-        <KeyboardArrowLeftIcon fontSize="small" id="previous" onClick={this.previous}/>
+        <KeyboardArrowLeftIcon 
+          style={this.state.currentPage <= 1 ? {visibility: "hidden"} : {visibility: "visible"}}
+          fontSize="small" 
+          id="previous" 
+          onClick={this.previous}
+        />
         <input style={{verticalAlign: "text-top"}} type="button" value={this.state.currentPage}/>
-        <KeyboardArrowRightIcon fontSize="small" id="next" onClick={this.next}/>
+        <KeyboardArrowRightIcon 
+          style={(this.state.currentPage === numberOfPages) || (this.state.items.length === 0) ? {visibility: "hidden"} : {visibility: "visible"}}
+          fontSize="small" 
+          id="next" 
+          onClick={this.next}
+        />
         <br/>
         <ButtonGroup
           orientation="vertical"
