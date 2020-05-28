@@ -98,7 +98,6 @@ class App extends Component {
     const items = this.state.items.map(item =>
       (item.id !== id) ? item : {...item, checked: (item.checked === false ? true : false)})
       this.setState({items})
-      setTimeout(()=> console.log(this.state.items), 500)
   };
   
   handleEdit = (e, id, newValue) => {
