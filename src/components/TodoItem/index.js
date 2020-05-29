@@ -60,7 +60,7 @@ class TodoItem extends Component {
                 disableRipple
                 color="default"
                 inputProps={{ 'aria-label': 'decorative checkbox' }}
-                onClick={()=> check(item.id)}
+                onClick={()=> check(item.id, item.checked)}
                 checked={item.checked}
               />
               <label className={item.checked ? "line" : null}>{item.value}</label>

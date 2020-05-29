@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react';
+import axios from 'axios';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Fab from '@material-ui/core/Fab';
@@ -6,7 +7,6 @@ import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import TodoItem from './components/TodoItem';
 import './App.css';
-import { v4 } from 'uuid';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 class App extends Component {
@@ -36,21 +36,24 @@ class App extends Component {
     return visibleItems;
   };
 
-  componentDidUpdate() {
-    this.drawList();
-  }
-
   addItem = () => {
     const { items, numberPerPage } = this.state;
-    if (this.inputRef.current.value.trim()) {
-      this.setState({items: [...items, {
-          value: this.inputRef.current.value,
-          checked: false,
-          id: v4()
+    let { value } = this.inputRef.current;
+    if (value.trim()) {
+      axios.post('http://localhost:3000/add', {value, checked: false})
+      .then(response => {
+        this.setState({items: [...items, {
+          value: response.data.value,
+          checked: response.data.checked,
+          id: response.data._id
         }],
         currentPage: Math.ceil((items.length + 1) / numberPerPage),
       });
       this.inputRef.current.value = '';
+      })
+      .catch(err => {
+        console.log(err + " unable to save to database");
+      });
     } else {
       alert("Please enter something :)")
     }
@@ -63,33 +66,70 @@ class App extends Component {
     }
   };
   
-  handleCheckboxClick = (id) => {
+  handleCheckboxClick = (id, checkedStatus) => {
     const items = this.state.items.map(item =>
-      (item.id !== id) ? item : {...item, checked: (item.checked === false ? true : false)})
+      (item.id !== id) ? item : {...item, checked: (item.checked === false ? true : false)});
       this.setState({items})
+
+      axios.put(`http://localhost:3000/edit/${id}`, {checked: !checkedStatus})
+      .then(doc => {
+        if (!doc) {return doc.status(404).end(); }
+        return doc.status(200).json(doc);
+      })
+      .catch(err => console.log(err));
   };
   
   handleEdit = (e, id, newValue) => {
     const items = this.state.items.map(item =>
       (item.id !== id) ? item : {...item, value: newValue})
-      this.setState({items})
+      this.setState({items});
+
+      axios.put(`http://localhost:3000/edit/${id}`, {value: newValue})
+      .then(doc => {
+        if (!doc) {return doc.status(404).end(); }
+        return doc.status(200).json(doc);
+      })
+      .catch(err => console.log(err));
   };
+
   handleDeleteClick = (id) => {
     const { numberPerPage, items, currentPage } = this.state;
     this.setState({
       items: items.filter(item => item.id !== id),
       currentPage: items.length % numberPerPage === 1 ? Math.ceil((items.length - 1) / numberPerPage) : currentPage
     })
+
+    axios.delete(`http://localhost:3000/delete/${id}`)
+    .then(doc => {
+      if (!doc) {console.log('Error')}
+      console.log('Successfully deleted');
+    })
+    .catch(error => {console.log(error + ' Unable to delete');
+    });
   };
 
   handleSelectAll = () => {
     const items = this.state.items.map(item => { return {...item, checked: true} })
     this.setState({items})
+
+    axios.put(`http://localhost:3000/selectAll`)
+    .then(res=> {
+      if(!res) console.log("No Response");
+    })
+    .catch(error => {console.log(error);
+    });
   }
 
   handleUnselectAll = () => {
     const items = this.state.items.map(item => { return {...item, checked: false} })
     this.setState({items})
+
+    axios.put(`http://localhost:3000/unSelectAll`)
+    .then(res=> {
+      if(!res) console.log("No Response");
+    })
+    .catch(error => {console.log(error);
+    });
   }
 
   handleRemoveAll = () => {
@@ -105,6 +145,40 @@ class App extends Component {
       ? Math.ceil((items.length - checkedItems.length) / numberPerPage) 
       : currentPage
     })
+
+    axios.delete(`http://localhost:3000/deleteSelected/`)
+    .then(doc => {
+      if (!doc) {
+        console.log('Error')
+      } else {
+        console.log('Successfully deleted')}
+    })
+    .catch(error => {console.log(error);
+    });
+  }
+
+  get = () => {
+    axios.get('http://localhost:3000/')
+    .then(response => {
+      const items = [];
+      for(let i=0; i < response.data.length; i++) {
+        items.push({
+          value: response.data[i].value,
+          checked: response.data[i].checked,
+          id: response.data[i]._id
+        })
+      }
+      this.setState({items});
+      console.log(this.state);
+    })
+    .catch(error => {
+      // handle error
+      console.log(error);
+    })
+  }
+
+  componentDidMount() {
+    this.get();
   }
 
   render() {
