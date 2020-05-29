@@ -22,10 +22,14 @@
 }
 
 .show {
-	display: block;
+	visibility: visible;
 }
 .hide {
-	display: none;
+	visibility: hidden;
+}
+
+.line {
+	text-decoration: line-through;
 }
 
 .id {
@@ -86,6 +90,10 @@ li {
 	margin-right: 5px;
 	position: absolute;
 	right: 25%;
+}
+
+.pageNumber {
+	vertical-align: text-top;
 }
 
 #completeBtn {

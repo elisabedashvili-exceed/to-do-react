@@ -63,7 +63,7 @@ class TodoItem extends Component {
                 onClick={()=> check(item.id)}
                 checked={item.checked}
               />
-              <label style={{ textDecoration: item.checked ? 'line-through' : 'none' }}>{item.value}</label>
+              <label className={item.checked ? "line" : null}>{item.value}</label>
               
               <IconButton id="editButton" onClick={this.handleEditClick} aria-label="edit">
                 <EditIcon fontSize="small"/>

@@ -29,27 +29,13 @@ class App extends Component {
   }
   
   drawList = () => {
-    const items = [...document.getElementById('list').children];
-    const start = (this.state.currentPage - 1) * this.state.numberPerPage;
-    const end = start + this.state.numberPerPage;
-    items.forEach((item, index) => {
-    if (index >= start && index < end) {
-      item.className = "show";
-    } else {
-      item.className = "hide";
-    }
-  });
-    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
-    document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
-    document.getElementById('previous').disabled = this.state.currentPage <= 1;
+    const {items, numberPerPage, currentPage} = this.state;
+    const start = (currentPage - 1) * numberPerPage;
+    const end = start + numberPerPage;
+    const visibleItems = items.filter( (item, index) => (index >= start && index < end) ? item : null );
+    return visibleItems;
   };
-  
-  componentDidMount() {
-    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
-    document.getElementById('next').disabled = (this.state.currentPage === numberOfPages) || (this.state.items.length === 0);
-    document.getElementById('previous').disabled = this.state.currentPage <= 1;
-  }
-  
+
   componentDidUpdate() {
     this.drawList();
   }
@@ -108,19 +94,23 @@ class App extends Component {
 
   handleRemoveAll = () => {
     const { numberPerPage, items, currentPage } = this.state;
+    let numberOfPages = Math.ceil(items.length / numberPerPage);
     const checkedItems = [];
-      this.state.items.forEach(item=> {
+      items.forEach(item=> {
         if (item.checked) checkedItems.push(item)
       })
     this.setState({
       items: items.filter(item => item.checked === false),
-      currentPage: items.length % numberPerPage === 1 ? Math.ceil((items.length - checkedItems.length) / numberPerPage) : currentPage
+      currentPage: (items.length % numberPerPage >= 0) && (items.length % numberPerPage < numberPerPage) && (currentPage === numberOfPages)
+      ? Math.ceil((items.length - checkedItems.length) / numberPerPage) 
+      : currentPage
     })
   }
 
   render() {
-    const { items } = this.state;
-    let numberOfPages = Math.ceil(this.state.items.length / this.state.numberPerPage);
+    const { items, currentPage, numberPerPage } = this.state;
+    const showItems = this.drawList();
+    let numberOfPages = Math.ceil(items.length / numberPerPage);
     return (
       <div className="App">
         <h1 className="title">To-Do List</h1>
@@ -138,7 +128,7 @@ class App extends Component {
           <AddIcon/>
         </Fab>
         <ul id="list">
-          {items.map((item) => {
+          {showItems.map((item) => {
             return (
               <TodoItem
                 item={item}
@@ -150,14 +140,14 @@ class App extends Component {
           })}
         </ul>
         <KeyboardArrowLeftIcon 
-          style={this.state.currentPage <= 1 ? {visibility: "hidden"} : {visibility: "visible"}}
+          className={currentPage <= 1 ? "hide" : "show"}
           fontSize="small" 
           id="previous" 
           onClick={this.previous}
         />
-        <input style={{verticalAlign: "text-top"}} type="button" value={this.state.currentPage}/>
+        <input className="pageNumber" type="button" value={currentPage}/>
         <KeyboardArrowRightIcon 
-          style={(this.state.currentPage === numberOfPages) || (this.state.items.length === 0) ? {visibility: "hidden"} : {visibility: "visible"}}
+          className={(currentPage === numberOfPages) || (items.length === 0) ? "hide" : "show"}
           fontSize="small" 
           id="next" 
           onClick={this.next}
