@@ -9,6 +9,7 @@ import TodoItem from './components/TodoItem';
 import './App.css';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+
 class App extends Component {
   state = {
     items: [],
@@ -18,42 +19,42 @@ class App extends Component {
   inputRef = createRef();
 
   next = () => {
-    console.log("--------next")
-    const {currentPage} = this.state;
-    this.setState({currentPage: currentPage + 1});
-  }
+    const { currentPage } = this.state;
+    this.setState({ currentPage: currentPage + 1 });
+  };
+
   previous = () => {
-    console.log("--------prev")
-    const {currentPage} = this.state;
-    this.setState({currentPage: currentPage - 1});
-  }
-  
+    const { currentPage } = this.state;
+    this.setState({ currentPage: currentPage - 1 });
+  };
+
   drawList = () => {
-    const {items, numberPerPage, currentPage} = this.state;
+    const { items, numberPerPage, currentPage } = this.state;
     const start = (currentPage - 1) * numberPerPage;
     const end = start + numberPerPage;
-    const visibleItems = items.filter( (item, index) => (index >= start && index < end) ? item : null );
-    return visibleItems;
+    return items.filter((item, index) => (index >= start && index < end));
+    // return visibleItems;
   };
 
   addItem = () => {
     const { items, numberPerPage } = this.state;
     let { value } = this.inputRef.current;
     if (value.trim()) {
-      axios.post('http://localhost:3000/add', {value, checked: false})
-      .then(response => {
-        this.setState({items: [...items, {
-          value: response.data.value,
-          checked: response.data.checked,
-          id: response.data._id
-        }],
-        currentPage: Math.ceil((items.length + 1) / numberPerPage),
-      });
-      this.inputRef.current.value = '';
-      })
-      .catch(err => {
-        console.log(err + " unable to save to database");
-      });
+      axios.post('http://localhost:3000/add', { value, checked: false })
+        .then(response => {
+          this.setState({
+            items: [...items, {
+              value: response.data.value,
+              checked: response.data.checked,
+              id: response.data._id
+            }],
+            currentPage: Math.ceil((items.length + 1) / numberPerPage),
+          });
+          this.inputRef.current.value = '';
+        })
+        .catch(err => {
+          console.log(err + " unable to save to database");
+        });
     } else {
       alert("Please enter something :)")
     }
@@ -65,29 +66,29 @@ class App extends Component {
       this.addItem();
     }
   };
-  
-  handleCheckboxClick = (id, checkedStatus) => {
-    const items = this.state.items.map(item =>
-      (item.id !== id) ? item : {...item, checked: (item.checked === false ? true : false)});
-      this.setState({items})
 
-      axios.put(`http://localhost:3000/edit/${id}`, {checked: !checkedStatus})
-      .then(doc => {
-        if (!doc) {return doc.status(404).end(); }
-        return doc.status(200).json(doc);
+  handleCheckboxClick = (id, checkedStatus) => {
+    const {items} = this.state;
+    const checkedItems = items.map(item =>
+      (item.id !== id) ? item : { ...item, checked: !item.checked });
+    this.setState({ items: checkedItems });
+
+    axios.put(`http://localhost:3000/edit/${id}`, { checked: !checkedStatus })
+      .then(() => {
+        console.log(`Item checked successfully`);
       })
       .catch(err => console.log(err));
   };
-  
-  handleEdit = (e, id, newValue) => {
-    const items = this.state.items.map(item =>
-      (item.id !== id) ? item : {...item, value: newValue})
-      this.setState({items});
 
-      axios.put(`http://localhost:3000/edit/${id}`, {value: newValue})
-      .then(doc => {
-        if (!doc) {return doc.status(404).end(); }
-        return doc.status(200).json(doc);
+  handleEdit = (e, id, newValue) => {
+    const {items} = this.state;
+    const editedItems = items.map(item =>
+      (item.id !== id) ? item : { ...item, value: newValue });
+    this.setState({ items: editedItems });
+
+    axios.put(`http://localhost:3000/edit/${id}`, { value: newValue })
+      .then(() => {
+        console.log(`Item edited successfully`);
       })
       .catch(err => console.log(err));
   };
@@ -97,84 +98,92 @@ class App extends Component {
     this.setState({
       items: items.filter(item => item.id !== id),
       currentPage: items.length % numberPerPage === 1 ? Math.ceil((items.length - 1) / numberPerPage) : currentPage
-    })
+    });
 
     axios.delete(`http://localhost:3000/delete/${id}`)
-    .then(doc => {
-      if (!doc) {console.log('Error')}
-      console.log('Successfully deleted');
-    })
-    .catch(error => {console.log(error + ' Unable to delete');
-    });
+      .then(doc => {
+        if (!doc) {
+          console.log('Error')
+        }
+        console.log('Successfully deleted');
+      })
+      .catch(error => {
+        console.log(error + ' Unable to delete');
+      });
   };
 
   handleSelectAll = () => {
-    const items = this.state.items.map(item => { return {...item, checked: true} })
-    this.setState({items})
+    const {items} = this.state;
+    const selectedItems = items.map(item => ({ ...item, checked: true }));
+    this.setState({ items: selectedItems });
 
     axios.put(`http://localhost:3000/selectAll`)
-    .then(res=> {
-      if(!res) console.log("No Response");
-    })
-    .catch(error => {console.log(error);
-    });
-  }
+      .then(res => {
+        if (!res) console.log("No Response");
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   handleUnselectAll = () => {
-    const items = this.state.items.map(item => { return {...item, checked: false} })
-    this.setState({items})
+    const {items} = this.state;
+    const unselectedItems = items.map(item => {
+      return { ...item, checked: false }
+    });
+    this.setState({ items: unselectedItems })
 
     axios.put(`http://localhost:3000/unSelectAll`)
-    .then(res=> {
-      if(!res) console.log("No Response");
-    })
-    .catch(error => {console.log(error);
-    });
+      .then(res => {
+        if (!res) console.log("No Response");
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   handleRemoveAll = () => {
     const { numberPerPage, items, currentPage } = this.state;
     let numberOfPages = Math.ceil(items.length / numberPerPage);
     const checkedItems = [];
-      items.forEach(item=> {
-        if (item.checked) checkedItems.push(item)
-      })
+    items.forEach(item => {
+      if (item.checked) checkedItems.push(item)
+    })
     this.setState({
       items: items.filter(item => item.checked === false),
       currentPage: (items.length % numberPerPage >= 0) && (items.length % numberPerPage < numberPerPage) && (currentPage === numberOfPages)
-      ? Math.ceil((items.length - checkedItems.length) / numberPerPage) 
-      : currentPage
+        ? Math.ceil((items.length - checkedItems.length) / numberPerPage)
+        : currentPage
     })
 
     axios.delete(`http://localhost:3000/deleteSelected/`)
-    .then(doc => {
-      if (!doc) {
-        console.log('Error')
-      } else {
-        console.log('Successfully deleted')}
-    })
-    .catch(error => {console.log(error);
-    });
+      .then(doc => {
+        if (!doc) {
+          console.log('Error')
+        } else {
+          console.log('Successfully deleted')
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   get = () => {
     axios.get('http://localhost:3000/')
-    .then(response => {
-      const items = [];
-      for(let i=0; i < response.data.length; i++) {
-        items.push({
-          value: response.data[i].value,
-          checked: response.data[i].checked,
-          id: response.data[i]._id
-        })
-      }
-      this.setState({items});
-      console.log(this.state);
-    })
-    .catch(error => {
-      // handle error
-      console.log(error);
-    })
+      .then(response => {
+        const items = [];
+        response.data.forEach(item => items.push({
+          value: item.value,
+          checked: item.checked,
+          id: item._id
+        }))
+        this.setState({ items });
+      })
+      .catch(error => {
+        // handle error
+        console.log(error);
+      })
   }
 
   componentDidMount() {
@@ -213,17 +222,17 @@ class App extends Component {
             );
           })}
         </ul>
-        <KeyboardArrowLeftIcon 
+        <KeyboardArrowLeftIcon
           className={currentPage <= 1 ? "hide" : "show"}
-          fontSize="small" 
-          id="previous" 
+          fontSize="small"
+          id="previous"
           onClick={this.previous}
         />
         <input className="pageNumber" type="button" value={currentPage}/>
-        <KeyboardArrowRightIcon 
+        <KeyboardArrowRightIcon
           className={(currentPage === numberOfPages) || (items.length === 0) ? "hide" : "show"}
-          fontSize="small" 
-          id="next" 
+          fontSize="small"
+          id="next"
           onClick={this.next}
         />
         <br/>
@@ -241,4 +250,5 @@ class App extends Component {
     );
   }
 }
+
 export default App;
