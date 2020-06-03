@@ -1,68 +1,75 @@
-import React from 'react';
-import {createRef} from 'react';
+import React, {Component, createRef} from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 
-const idField = createRef();
-const firstPassField = createRef();
-const secondPassField = createRef();
+export class registration extends Component {
+  idField = createRef();
+  firstPassField = createRef();
+  secondPassField = createRef();
 
-export const registration = () =>
-    <section className="login">
-      <h1>Registration</h1>
-      <div className="registrationBody">
-        <label className="ID">ID </label>
-        <TextField 
-          inputRef={idField}
-          className="regInputField"
-          size="small" 
-          label="Enter your ID" 
-          variant="outlined" /><br />
-        <label className="password">Password </label>
-        <form className="passwords">
-        <TextField
-          inputRef={firstPassField}
-          className="regInputField"
-          size="small"
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          variant="outlined"
-        /><br />
-        <label className="password">Repeat Password </label>
-        <TextField
-          inputRef={secondPassField}
-          className="regInputField"
-          size="small"
-          label="Repeat Password"
-          type="password"
-          autoComplete="current-password"
-          variant="outlined"
-        /><br />
-        </form>
-      </div>
-        <Button variant="contained" size="large" color="primary" onClick={()=> submit()}>Submit</Button>
-    </section>
-
-const submit = () => {
-  if (firstPassField.current.value !== secondPassField.current.value) {
-    alert("Passwords don't match");
-  } else if (firstPassField.current.value.length < 6) {
-      alert("Minimum 6 symbols");
-  } else {
-    let userObject = {
-      "username": idField.current.value,
-      "password": firstPassField.current.value
+  submit = () => {
+    if (this.firstPassField.current.value !== this.secondPassField.current.value) {
+      alert("Passwords don't match");
+    } else if (this.firstPassField.current.value.length < 6) {
+        alert("Password: Minimum 6 symbols");
+    } else if (!this.idField.current.value.trim()) {
+        alert("Please, enter your username");
+    } else {
+      let userObject = {
+        "username": this.idField.current.value,
+        "password": this.firstPassField.current.value
+      }
+      axios.post('http://localhost:3000/addUser', userObject)
+      .then(res => {
+        console.log("Successfully registered", res);
+        alert("Successfully registered");
+        this.idField.current.value = '';
+        this.firstPassField.current.value = '';
+        this.secondPassField.current.value = '';
+      }) 
+      .catch(err => console.log(err))
     }
-    axios.post('http://localhost:3000/addUser', userObject)
-    .then(res => {
-      console.log("Successfully registered", res);
-      alert("Successfully registered");
-      idField.current.value = '';
-      firstPassField.current.value = '';
-      secondPassField.current.value = '';
-    }) 
-    .catch(err => console.log(err))
+  }
+
+  render() {
+    return (
+      <div className="login">
+        <h1>Registration</h1>
+        <div className="registrationBody">
+          <label className="ID">ID </label>
+          <TextField 
+            inputRef={this.idField}
+            className="regInputField"
+            size="small" 
+            label="Enter your ID" 
+            variant="outlined" /><br />
+          <label className="password">Password </label>
+          <form className="passwords">
+          <TextField
+            inputRef={this.firstPassField}
+            className="regInputField"
+            size="small"
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            variant="outlined"
+          /><br />
+          <label className="password">Repeat Password </label>
+          <TextField
+            inputRef={this.secondPassField}
+            className="regInputField"
+            size="small"
+            label="Repeat Password"
+            type="password"
+            autoComplete="current-password"
+            variant="outlined"
+          /><br />
+          </form>
+        </div>
+          <Button variant="contained" size="large" color="primary" onClick={()=> this.submit()}>Submit</Button>
+      </div>
+    )
   }
 }
+    
