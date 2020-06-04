@@ -1,29 +1,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+
+import * as serviceWorker from './serviceWorker';
 import {login} from './components/pages/login';
 import {registration} from './components/pages/registration';
 import {Header} from './components/header';
 import {Notfound} from './components/pages/notFound';
 
-window.React = React
+import './index.css';
+import App from './App';
+import reducer from './rootReducer';
+
+//           final state
+export const store = createStore(
+  reducer,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__() // chrome devtools thing
+);
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <div className="main">
-        <Header/>
-        <Switch>
-          <Route exact path="/" component={App} />
-          <Route path="/login" component={login} />
-          <Route path="/registration" component={registration} />
-          <Route component={Notfound} />
-        </Switch>
-      </div>
-    </Router>
+    <Provider store={store} >
+      <Router>
+        <div className="main">
+          <Header/>
+          <Switch>
+            <Route exact path="/" component={App} />
+            <Route path="/login" component={login} />
+            <Route path="/registration" component={registration} />
+            <Route component={Notfound} />
+          </Switch>
+        </div>
+      </Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

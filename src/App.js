@@ -1,4 +1,6 @@
 import React, { Component, createRef } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import axios from 'axios';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -9,6 +11,8 @@ import TodoItem from './components/TodoItem';
 import './App.css';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+
+import { testAction } from './redux/actions/testAction';
 
 class App extends Component {
   state = {
@@ -191,6 +195,8 @@ class App extends Component {
   }
 
   render() {
+
+    console.log('---------', this.props);
     const { items, currentPage, numberPerPage } = this.state;
     const showItems = this.drawList();
     let numberOfPages = Math.ceil(items.length / numberPerPage);
@@ -245,10 +251,39 @@ class App extends Component {
           <Button id="completeBtn" onClick={this.handleSelectAll}>Complete Tasks</Button>
           <Button id="uncompleteBtn" onClick={this.handleUnselectAll}>Uncomplete Tasks</Button>
           <Button id="removeAllBtn" onClick={this.handleRemoveAll}>Remove Completed Tasks</Button>
+          <Button onClick={() => {this.props.actions.testAction('123456678')}}>action</Button>
         </ButtonGroup>
       </div>
     );
   }
 }
 
-export default App;
+// Called every time the store state changes. 
+// It receives the entire store state, 
+// and should return an object of data this component needs.
+
+//                       state --> state in reducer function
+const mapStateToProps = (state) => {
+  return {
+    stateProp: state.stateProp,
+  }
+}
+
+
+// If it’s a function, it will be called once on component creation. 
+// It will receive dispatch as an argument, and should return an object full of functions that use dispatch to dispatch actions.
+// If it’s an object full of action creators, 
+// each action creator will be turned into a prop function that automatically dispatches its action when called.
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(
+      {
+        testAction,
+      },
+      dispatch
+    )
+  };
+};
+
+// mapDispatchToProps doesn't have any arguments below, it has dispatch up there
+export default connect(mapStateToProps, mapDispatchToProps)(App);
