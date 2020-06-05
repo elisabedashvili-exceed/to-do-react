@@ -12,7 +12,9 @@ import './App.css';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
-import { testAction } from './redux/actions/testAction';
+import { testAction, checkAction } from './redux/actions/testAction';
+import { addItems, checkItem, editItem, deleteItem } from './redux/actions/toDoItemRelated';
+import { nextPage, prevPage } from './redux/actions/paginationButtons';
 
 class App extends Component {
   state = {
@@ -22,38 +24,23 @@ class App extends Component {
   };
   inputRef = createRef();
 
-  next = () => {
-    const { currentPage } = this.state;
-    this.setState({ currentPage: currentPage + 1 });
-  };
-
-  previous = () => {
-    const { currentPage } = this.state;
-    this.setState({ currentPage: currentPage - 1 });
-  };
-
   drawList = () => {
-    const { items, numberPerPage, currentPage } = this.state;
+    const { numberPerPage, currentPage } = this.props;
+
     const start = (currentPage - 1) * numberPerPage;
     const end = start + numberPerPage;
-    return items.filter((item, index) => (index >= start && index < end));
+    return this.props.items.filter((item, index) => (index >= start && index < end));
     // return visibleItems;
   };
 
   addItem = () => {
-    const { items, numberPerPage } = this.state;
+    const { actions } = this.props;
     let { value } = this.inputRef.current;
     if (value.trim()) {
       axios.post('http://localhost:3000/add', { value, checked: false })
         .then(response => {
-          this.setState({
-            items: [...items, {
-              value: response.data.value,
-              checked: response.data.checked,
-              id: response.data._id
-            }],
-            currentPage: Math.ceil((items.length + 1) / numberPerPage),
-          });
+          const { value, checked, _id } = response.data;
+          actions.addItems(value, checked, _id);
           this.inputRef.current.value = '';
         })
         .catch(err => {
@@ -72,11 +59,8 @@ class App extends Component {
   };
 
   handleCheckboxClick = (id, checkedStatus) => {
-    const {items} = this.state;
-    const checkedItems = items.map(item =>
-      (item.id !== id) ? item : { ...item, checked: !item.checked });
-    this.setState({ items: checkedItems });
-
+    const { checkItem } = this.props.actions;
+    checkItem(id);
     axios.put(`http://localhost:3000/edit/${id}`, { checked: !checkedStatus })
       .then(() => {
         console.log(`Item checked successfully`);
@@ -85,10 +69,8 @@ class App extends Component {
   };
 
   handleEdit = (e, id, newValue) => {
-    const {items} = this.state;
-    const editedItems = items.map(item =>
-      (item.id !== id) ? item : { ...item, value: newValue });
-    this.setState({ items: editedItems });
+    const { editItem } = this.props.actions;
+    editItem(id, newValue);
 
     axios.put(`http://localhost:3000/edit/${id}`, { value: newValue })
       .then(() => {
@@ -98,11 +80,8 @@ class App extends Component {
   };
 
   handleDeleteClick = (id) => {
-    const { numberPerPage, items, currentPage } = this.state;
-    this.setState({
-      items: items.filter(item => item.id !== id),
-      currentPage: items.length % numberPerPage === 1 ? Math.ceil((items.length - 1) / numberPerPage) : currentPage
-    });
+    const { deleteItem } = this.props.actions;
+    deleteItem(id);
 
     axios.delete(`http://localhost:3000/delete/${id}`)
       .then(doc => {
@@ -195,9 +174,8 @@ class App extends Component {
   }
 
   render() {
-
-    console.log('---------', this.props);
-    const { items, currentPage, numberPerPage } = this.state;
+    const { items, currentPage, numberPerPage, actions } = this.props;
+    console.log(this.props);
     const showItems = this.drawList();
     let numberOfPages = Math.ceil(items.length / numberPerPage);
     return (
@@ -232,14 +210,14 @@ class App extends Component {
           className={currentPage <= 1 ? "hide" : "show"}
           fontSize="small"
           id="previous"
-          onClick={this.previous}
+          onClick={() => this.props.actions.prevPage()}
         />
         <input className="pageNumber" type="button" value={currentPage}/>
         <KeyboardArrowRightIcon
           className={(currentPage === numberOfPages) || (items.length === 0) ? "hide" : "show"}
           fontSize="small"
           id="next"
-          onClick={this.next}
+          onClick={() => actions.nextPage()}
         />
         <br/>
         <ButtonGroup
@@ -251,7 +229,7 @@ class App extends Component {
           <Button id="completeBtn" onClick={this.handleSelectAll}>Complete Tasks</Button>
           <Button id="uncompleteBtn" onClick={this.handleUnselectAll}>Uncomplete Tasks</Button>
           <Button id="removeAllBtn" onClick={this.handleRemoveAll}>Remove Completed Tasks</Button>
-          <Button onClick={() => {this.props.actions.testAction('123456678')}}>action</Button>
+          <Button onClick={() => actions.checkAction()}>action</Button>
         </ButtonGroup>
       </div>
     );
@@ -265,10 +243,13 @@ class App extends Component {
 //                       state --> state in reducer function
 const mapStateToProps = (state) => {
   return {
-    stateProp: state.stateProp,
+    hello: "hello",
+    goodBye: state.goodBye,
+    items: state.items,
+    numberPerPage: state.numberPerPage,
+    currentPage: state.currentPage
   }
 }
-
 
 // If it’s a function, it will be called once on component creation. 
 // It will receive dispatch as an argument, and should return an object full of functions that use dispatch to dispatch actions.
@@ -279,6 +260,13 @@ const mapDispatchToProps = dispatch => {
     actions: bindActionCreators(
       {
         testAction,
+        checkAction,
+        addItems,
+        checkItem,
+        editItem,
+        deleteItem,
+        nextPage,
+        prevPage
       },
       dispatch
     )
@@ -287,3 +275,19 @@ const mapDispatchToProps = dispatch => {
 
 // mapDispatchToProps doesn't have any arguments below, it has dispatch up there
 export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+
+
+// No longer need setState()
+
+// Information that we need to render components should be taken from store
+
+// in our case store should look like something like this:
+    // { items: [],
+    //   numberPerPage: 3,
+    //   currentPage: 1    (without editMode: false, because it's minor little thing we can leave it to TodoItem component)
+    // }
+    
+// Everytime we want to update store we need to call reducer
+
+// connect connects component to store
