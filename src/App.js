@@ -13,7 +13,7 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import { testAction, checkAction } from './redux/actions/testAction';
-import { addItems, checkItem, editItem, deleteItem } from './redux/actions/toDoItemRelated';
+import { addItems, checkItem, editItem, deleteItem, selectAll, unselectAll, removeAll, getAll } from './redux/actions/toDoItemRelated';
 import { nextPage, prevPage } from './redux/actions/paginationButtons';
 
 class App extends Component {
@@ -25,11 +25,11 @@ class App extends Component {
   inputRef = createRef();
 
   drawList = () => {
-    const { numberPerPage, currentPage } = this.props;
+    const { numberPerPage, currentPage, items } = this.props;
 
     const start = (currentPage - 1) * numberPerPage;
     const end = start + numberPerPage;
-    return this.props.items.filter((item, index) => (index >= start && index < end));
+    return items.filter((item, index) => (index >= start && index < end));
     // return visibleItems;
   };
 
@@ -96,9 +96,8 @@ class App extends Component {
   };
 
   handleSelectAll = () => {
-    const {items} = this.state;
-    const selectedItems = items.map(item => ({ ...item, checked: true }));
-    this.setState({ items: selectedItems });
+    const { selectAll } = this.props.actions;
+    selectAll();
 
     axios.put(`http://localhost:3000/selectAll`)
       .then(res => {
@@ -110,11 +109,8 @@ class App extends Component {
   };
 
   handleUnselectAll = () => {
-    const {items} = this.state;
-    const unselectedItems = items.map(item => {
-      return { ...item, checked: false }
-    });
-    this.setState({ items: unselectedItems })
+    const { unselectAll } = this.props.actions;
+    unselectAll();
 
     axios.put(`http://localhost:3000/unSelectAll`)
       .then(res => {
@@ -126,18 +122,8 @@ class App extends Component {
   }
 
   handleRemoveAll = () => {
-    const { numberPerPage, items, currentPage } = this.state;
-    let numberOfPages = Math.ceil(items.length / numberPerPage);
-    const checkedItems = [];
-    items.forEach(item => {
-      if (item.checked) checkedItems.push(item)
-    })
-    this.setState({
-      items: items.filter(item => item.checked === false),
-      currentPage: (items.length % numberPerPage >= 0) && (items.length % numberPerPage < numberPerPage) && (currentPage === numberOfPages)
-        ? Math.ceil((items.length - checkedItems.length) / numberPerPage)
-        : currentPage
-    })
+    const { removeAll } = this.props.actions;
+    removeAll();
 
     axios.delete(`http://localhost:3000/deleteSelected/`)
       .then(doc => {
@@ -153,15 +139,12 @@ class App extends Component {
   }
 
   get = () => {
+    const { getAll } = this.props.actions;
     axios.get('http://localhost:3000/')
       .then(response => {
-        const items = [];
-        response.data.forEach(item => items.push({
-          value: item.value,
-          checked: item.checked,
-          id: item._id
-        }))
-        this.setState({ items });
+        
+        getAll(response.data);
+        console.log(this.props.items)
       })
       .catch(error => {
         // handle error
@@ -175,7 +158,6 @@ class App extends Component {
 
   render() {
     const { items, currentPage, numberPerPage, actions } = this.props;
-    console.log(this.props);
     const showItems = this.drawList();
     let numberOfPages = Math.ceil(items.length / numberPerPage);
     return (
@@ -199,7 +181,7 @@ class App extends Component {
             return (
               <TodoItem
                 item={item}
-                key={item.id}
+                key={item._id}
                 remove={this.handleDeleteClick}
                 edit={this.handleEdit}
                 check={this.handleCheckboxClick}/>
@@ -265,6 +247,10 @@ const mapDispatchToProps = dispatch => {
         checkItem,
         editItem,
         deleteItem,
+        selectAll,
+        unselectAll,
+        removeAll,
+        getAll,
         nextPage,
         prevPage
       },

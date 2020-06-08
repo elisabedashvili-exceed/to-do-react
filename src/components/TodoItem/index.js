@@ -25,7 +25,7 @@ class TodoItem extends Component {
   handleSubmit = (e) => {
     const {edit, item} = this.props;
     if (this.editRef.current.value.trim()) {
-      edit(e, item.id, this.editRef.current.value);
+      edit(e, item._id, this.editRef.current.value);
       this.setState({editMode: false});   
     } else {
       alert("Please enter something :)")
@@ -60,7 +60,7 @@ class TodoItem extends Component {
                 disableRipple
                 color="default"
                 inputProps={{ 'aria-label': 'decorative checkbox' }}
-                onClick={()=> check(item.id, item.checked)}
+                onClick={()=> check(item._id, item.checked)}
                 checked={item.checked}
               />
               <label className={item.checked ? "line" : null}>{item.value}</label>
@@ -69,7 +69,7 @@ class TodoItem extends Component {
                 <EditIcon fontSize="small"/>
               </IconButton>
 
-              <IconButton id="deleteButton" onClick={() => remove(item.id)} aria-label="delete">
+              <IconButton id="deleteButton" onClick={() => remove(item._id)} aria-label="delete">
                 <DeleteIcon fontSize="small"/>
               </IconButton>
             </Fragment>
