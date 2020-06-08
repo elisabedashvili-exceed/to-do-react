@@ -1,11 +1,13 @@
+import { actionTypes } from "./actionTypes";
+
 export const nextPage = () => {
-    return {
-        type: 'NEXT_PAGE'
-    }
-}
+  return {
+    type: actionTypes.NEXT_PAGE,
+  };
+};
 
 export const prevPage = () => {
-    return {
-        type: 'PREV_PAGE'
-    }
-}
+  return {
+    type: actionTypes.PREV_PAGE,
+  };
+};

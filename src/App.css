@@ -1,109 +1,110 @@
 .App {
   text-align: center;
   margin-left: 25%;
-	margin-right: 25%;
+  margin-right: 25%;
 }
 
 .title {
-	font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .line-through {
-	text-decoration: line-through; 
+  text-decoration: line-through;
 }
 
 .no-line-through {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 .show {
-	visibility: visible;
+  visibility: visible;
 }
 .hide {
-	visibility: hidden;
+  visibility: hidden;
 }
 
 .line {
-	text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 .id {
-	display: none;
+  display: none;
 }
 
 #list {
-	padding-left: 0;
-	border-width: 5px;
-	border-left: orangered;
-	border-right: orangered;
-	list-style: inside;
-	list-style-type:none;
-    text-align: initial;
-	justify-content: center;
-
+  padding-left: 0;
+  border-width: 5px;
+  border-left: orangered;
+  border-right: orangered;
+  list-style: inside;
+  list-style-type: none;
+  text-align: initial;
+  justify-content: center;
 }
 
 #list2 {
-	padding-left: 0;
-	border-width: 5px;
-	border-left: orangered;
-	border-right: orangered;
-	list-style: inside;
-	list-style-type:none;
-    text-align: initial;
-	justify-content: center;
+  padding-left: 0;
+  border-width: 5px;
+  border-left: orangered;
+  border-right: orangered;
+  list-style: inside;
+  list-style-type: none;
+  text-align: initial;
+  justify-content: center;
 }
 
 #listItem {
-    margin: 0 10px;
-    border-width: 5px;
+  margin: 0 10px;
+  border-width: 5px;
 }
 
 #button {
-	margin-left: 5px;
+  margin-left: 5px;
 }
 #button:hover {
-	background:linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
-	background-color:#408c99;
+  background: linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
+  background-color: #408c99;
 }
 #button:active {
-	position:relative;
-	top:1px;
+  position: relative;
+  top: 1px;
 }
 
 li {
-	margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
-#editButton, #submitButton {
-	margin-right: 10px;
-	position: absolute;
-  	right: 30%;
+#editButton,
+#submitButton {
+  margin-right: 10px;
+  position: absolute;
+  right: 30%;
 }
 
-#deleteButton, #cancelButton {
-	margin-right: 5px;
-	position: absolute;
-	right: 25%;
+#deleteButton,
+#cancelButton {
+  margin-right: 5px;
+  position: absolute;
+  right: 25%;
 }
 
 .pageNumber {
-	vertical-align: top;
+  vertical-align: top;
 }
 
 #completeBtn {
-	width: 100%;
-	margin-bottom: 5px;
+  width: 100%;
+  margin-bottom: 5px;
 }
 
 #uncompleteBtn {
-	width: 100%;
-	margin-bottom: 5px;
+  width: 100%;
+  margin-bottom: 5px;
 }
 
 #removeAllBtn {
-	width: 100%;
-	margin-bottom: 5px;
+  width: 100%;
+  margin-bottom: 5px;
 }
 
 .App-logo {
