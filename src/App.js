@@ -204,7 +204,7 @@ class App extends Component {
         </ul>
         <KeyboardArrowLeftIcon
           className={currentPage <= 1 ? "hide" : "show"}
-          fontSize="medium"
+          fontSize="large"
           id="previous"
           onClick={() => this.props.actions.prevPage()}
         />
@@ -217,7 +217,7 @@ class App extends Component {
               ? "hide"
               : "show"
           }
-          fontSize="medium"
+          fontSize="large"
           id="next"
           onClick={() => actions.nextPage()}
         />
