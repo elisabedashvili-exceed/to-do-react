@@ -18,6 +18,7 @@
 
 .show {
   visibility: visible;
+  vertical-align: middle;
 }
 .hide {
   visibility: hidden;
@@ -88,25 +89,6 @@ li {
   right: 25%;
 }
 
-.pageNumber {
-  vertical-align: top;
-}
-
-#completeBtn {
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-#uncompleteBtn {
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-#removeAllBtn {
-  width: 100%;
-  margin-bottom: 5px;
-}
-
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -140,4 +122,17 @@ li {
   to {
     transform: rotate(360deg);
   }
+}
+
+.bigButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width:250px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button.MuiButtonBase-root {
+  min-width: auto;
 }

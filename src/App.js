@@ -3,7 +3,6 @@ import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import axios from "axios";
 import Button from "@material-ui/core/Button";
-import ButtonGroup from "@material-ui/core/ButtonGroup";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import TextField from "@material-ui/core/TextField";
@@ -205,38 +204,48 @@ class App extends Component {
         </ul>
         <KeyboardArrowLeftIcon
           className={currentPage <= 1 ? "hide" : "show"}
-          fontSize="small"
+          fontSize="medium"
           id="previous"
           onClick={() => this.props.actions.prevPage()}
         />
-        <input className="pageNumber" type="button" value={currentPage} />
+        <Button size="small" variant="outlined" color="primary">
+          {currentPage}
+        </Button>
         <KeyboardArrowRightIcon
           className={
             currentPage === numberOfPages || items.length === 0
               ? "hide"
               : "show"
           }
-          fontSize="small"
+          fontSize="medium"
           id="next"
           onClick={() => actions.nextPage()}
         />
         <br />
-        <ButtonGroup
-          orientation="vertical"
+
+        <div className="bigButtons">
+        <Button
+          variant="outlined"
           color="primary"
-          aria-label="vertical contained primary button group"
-          variant="contained"
+          onClick={this.handleSelectAll}
         >
-          <Button id="completeBtn" onClick={this.handleSelectAll}>
-            Complete Tasks
-          </Button>
-          <Button id="uncompleteBtn" onClick={this.handleUnselectAll}>
-            Uncomplete Tasks
-          </Button>
-          <Button id="removeAllBtn" onClick={this.handleRemoveAll}>
-            Remove Completed Tasks
-          </Button>
-        </ButtonGroup>
+          Complete Tasks
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={this.handleUnselectAll}
+        >
+          Uncomplete Tasks
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={this.handleRemoveAll}
+        >
+          Remove Completed Tasks
+        </Button>
+        </div>
       </div>
     );
   }
