@@ -24,7 +24,7 @@ export class login extends Component {
       };
 
       axios
-        .post("http://localhost:3000/login", userObject)
+        .post("http://localhost:8000/login", userObject)
         .then((res) => {
           if (res.data === "Incorrect password") {
             alert("Incorrect password");

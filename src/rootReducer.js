@@ -1,3 +1,5 @@
+import { actionTypes } from "./redux/actions/actionTypes";
+
 const initialState = {
   items: [],
   numberPerPage: 3,
@@ -7,7 +9,7 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   const { items, numberPerPage, currentPage } = state;
   switch (action.type) {
-    case "ADD_ITEM":
+    case actionTypes.ADD_ITEM:
       return {
         ...state,
         items: [
@@ -21,7 +23,7 @@ const reducer = (state = initialState, action) => {
         currentPage: Math.ceil((items.length + 1) / numberPerPage),
       };
 
-    case "CHECK_ITEM":
+    case actionTypes.CHECK_ITEM :
       const checkedItems = items.map((item) =>
         item._id !== action.id ? item : { ...item, checked: !item.checked }
       );
@@ -30,7 +32,7 @@ const reducer = (state = initialState, action) => {
         items: checkedItems,
       };
 
-    case "EDIT_ITEM":
+    case actionTypes.EDIT_ITEM :
       const editedItems = items.map((item) =>
         item._id !== action.id ? item : { ...item, value: action.value }
       );
@@ -39,7 +41,7 @@ const reducer = (state = initialState, action) => {
         items: editedItems,
       };
 
-    case "DELETE_ITEM":
+    case actionTypes.DELETE_ITEM :
       return {
         ...state,
         items: items.filter((item) => item._id !== action.id),
@@ -49,26 +51,26 @@ const reducer = (state = initialState, action) => {
             : currentPage,
       };
 
-    case "NEXT_PAGE":
+    case actionTypes.NEXT_PAGE :
       return {
         ...state,
         currentPage: currentPage + 1,
       };
 
-    case "PREV_PAGE":
+    case actionTypes.PREV_PAGE :
       return {
         ...state,
         currentPage: currentPage - 1,
       };
 
-    case "SELECT_ALL":
+    case actionTypes.SELECT_ALL : 
       const selectedItems = items.map((item) => ({ ...item, checked: true }));
       return {
         ...state,
         items: selectedItems,
       };
 
-    case "UNSELECT_ALL":
+    case actionTypes.UNSELECT_ALL :
       const unselectedItems = items.map((item) => ({
         ...item,
         checked: false,
@@ -78,7 +80,7 @@ const reducer = (state = initialState, action) => {
         items: unselectedItems,
       };
 
-    case "REMOVE_ALL":
+    case actionTypes.REMOVE_ALL :  
       let numberOfPages = Math.ceil(items.length / numberPerPage);
       const checkItems = [];
       items.forEach((item) => {
@@ -95,7 +97,7 @@ const reducer = (state = initialState, action) => {
             : currentPage,
       };
 
-    case "GET_ALL":
+    case actionTypes.GET_ALL :
       return {
         ...state,
         items: action.items,

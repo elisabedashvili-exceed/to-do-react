@@ -23,7 +23,7 @@ export class registration extends Component {
         password: this.firstPassField.current.value,
       };
       axios
-        .post("http://localhost:3000/addUser", userObject)
+        .post("http://localhost:8000/addUser", userObject)
         .then((res) => {
           console.log("Successfully registered", res);
           alert("Successfully registered");
