@@ -2,7 +2,7 @@ import { actionTypes } from "./redux/actions/actionTypes";
 
 const initialState = {
   items: [],
-  numberPerPage: 3,
+  numberPerPage: 10,
   currentPage: 1,
 };
 

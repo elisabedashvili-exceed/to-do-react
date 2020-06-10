@@ -7,7 +7,8 @@ export class login extends Component {
   idField = createRef();
   passField = createRef();
 
-  authorisation = () => {
+  authorisation = (e) => {
+    e.preventDefault();
     let idField = this.idField.current.value;
     let passField = this.passField.current.value;
 
@@ -19,25 +20,30 @@ export class login extends Component {
       alert("please enter username");
     } else {
       let userObject = {
+        // COMMENT hash getrequest for pass
         username: idField,
         password: passField,
       };
 
       axios
-        .post("http://localhost:8000/login", userObject)
-        .then((res) => {
-          if (res.data === "Incorrect password") {
-            alert("Incorrect password");
-          } else if (res.data === "No Users Found") {
-            alert("No Users Found");
-          } else {
-            alert("Successfully Logged In");
-          }
-
-          idField = "";
-          passField = "";
+        .post("http://localhost:8000/login", {
+          body: userObject,
+          headers: {
+            "Content-Type": "application/json",
+          },
         })
-        .catch((err) => console.log(err));
+        .then((res) => {
+          if (res.status === 200) {
+            this.props.history.push("/");
+          } else {
+            const error = new Error(res.error);
+            throw error;
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Error logging in please try again");
+        });
     }
   };
 
@@ -68,7 +74,7 @@ export class login extends Component {
           variant="contained"
           size="small"
           color="primary"
-          onClick={() => this.authorisation()}
+          onClick={(e) => this.authorisation(e)}
         >
           Authorize
         </Button>

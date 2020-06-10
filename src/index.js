@@ -13,6 +13,7 @@ import { Notfound } from "./components/pages/notFound";
 import "./index.css";
 import App from "./App";
 import reducer from "./rootReducer";
+import withAuth from "./components/withAuth";
 
 //           final state
 export const store = createStore(
@@ -27,7 +28,7 @@ ReactDOM.render(
         <div className="main">
           <Header />
           <Switch>
-            <Route exact path="/" component={App} />
+            <Route exact path="/" component={withAuth(App)} />
             <Route path="/login" component={login} />
             <Route path="/registration" component={registration} />
             <Route component={Notfound} />
