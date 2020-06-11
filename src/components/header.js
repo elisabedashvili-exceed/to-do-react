@@ -21,6 +21,14 @@ export class Header extends Component {
             Registration
           </Button>
         </Link>
+        <button
+          onClick={() => {
+            localStorage.clear();
+            window.location.href = "http://localhost:3000/login";
+          }}
+        >
+          sign out
+        </button>
       </div>
     );
   }

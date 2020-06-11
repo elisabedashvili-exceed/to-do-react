@@ -25,7 +25,6 @@ import { nextPage, prevPage } from "./redux/actions/paginationButtons";
 
 class App extends Component {
   inputRef = createRef();
-
   drawList = () => {
     const { numberPerPage, currentPage, items } = this.props;
 
@@ -37,6 +36,7 @@ class App extends Component {
   addItem = () => {
     const { actions } = this.props;
     let { value } = this.inputRef.current;
+    console.log(localStorage.getItem('token'))
     if (value.trim()) {
       axios
         .post("http://localhost:8000/add", { value, checked: false })
@@ -160,7 +160,11 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.get();
+    if (!localStorage.getItem("token")) {
+      this.props.history.push("/login");
+    } else {
+      this.get();
+    }
   }
 
   render() {
@@ -224,27 +228,27 @@ class App extends Component {
         <br />
 
         <div className="bigButtons">
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={this.handleSelectAll}
-        >
-          Complete Tasks
-        </Button>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={this.handleUnselectAll}
-        >
-          Uncomplete Tasks
-        </Button>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={this.handleRemoveAll}
-        >
-          Remove Completed Tasks
-        </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={this.handleSelectAll}
+          >
+            Complete Tasks
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={this.handleUnselectAll}
+          >
+            Uncomplete Tasks
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={this.handleRemoveAll}
+          >
+            Remove Completed Tasks
+          </Button>
         </div>
       </div>
     );

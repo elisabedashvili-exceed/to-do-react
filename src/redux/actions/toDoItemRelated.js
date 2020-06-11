@@ -1,11 +1,12 @@
 import { actionTypes } from "./actionTypes";
 
-export const addItems = (value, checked, id) => {
+export const addItems = (value, checked, id, user) => {
   return {
     type: actionTypes.ADD_ITEM,
     value,
     checked,
     id,
+    user
   };
 };
 

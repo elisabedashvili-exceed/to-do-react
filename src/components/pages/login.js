@@ -26,14 +26,10 @@ export class login extends Component {
       };
 
       axios
-        .post("http://localhost:8000/login", {
-          body: userObject,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
+        .post("http://localhost:8000/login", userObject)
         .then((res) => {
           if (res.status === 200) {
+            localStorage.setItem('token', res.data.token);
             this.props.history.push("/");
           } else {
             const error = new Error(res.error);

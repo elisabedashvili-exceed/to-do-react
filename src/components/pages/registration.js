@@ -25,8 +25,13 @@ export class registration extends Component {
       axios
         .post("http://localhost:8000/addUser", userObject)
         .then((res) => {
-          console.log("Successfully registered", res);
-          alert("Successfully registered");
+          if (res.data.name === "MongoError") {
+            alert("Username Taken");
+          } else {
+            console.log("Successfully registered", res);
+            alert("Successfully registered");
+          }
+
           this.idField.current.value = "";
           this.firstPassField.current.value = "";
           this.secondPassField.current.value = "";
