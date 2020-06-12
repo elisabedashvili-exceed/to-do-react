@@ -10,6 +10,8 @@ import TodoItem from "./components/TodoItem";
 import "./App.css";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+import Snackbar from "@material-ui/core/Snackbar";
+import * as jwt from "jsonwebtoken";
 
 import {
   addItems,
@@ -22,6 +24,7 @@ import {
   getAll,
 } from "./redux/actions/toDoItemRelated";
 import { nextPage, prevPage } from "./redux/actions/paginationButtons";
+import { snackbar } from "./redux/actions/snackbar";
 
 class App extends Component {
   inputRef = createRef();
@@ -34,23 +37,34 @@ class App extends Component {
   };
 
   addItem = () => {
-    const { actions } = this.props;
+    const { addItems, snackbar } = this.props.actions;
     let { value } = this.inputRef.current;
-    console.log(localStorage.getItem('token'))
+
+    let token = localStorage.getItem("token");
+    let decoded = jwt.decode(token, { complete: true });
+    let username = decoded.payload.username;
+
     if (value.trim()) {
       axios
-        .post("http://localhost:8000/add", { value, checked: false })
+        .post("http://localhost:8000/add", {
+          value,
+          checked: false,
+          user: username,
+        })
         .then((response) => {
           const { value, checked, _id } = response.data;
-          actions.addItems(value, checked, _id);
+          addItems(value, checked, _id);
           this.inputRef.current.value = "";
         })
         .catch((err) => {
           console.log(err + " unable to save to database");
         });
     } else {
-      alert("Please enter something :)");
-    }
+      snackbar(true, "Please enter something :)")
+      setTimeout(() => {
+        snackbar(false, null)
+      }, 2000);
+    } 
   };
 
   handleKeyPress = (e) => {
@@ -148,11 +162,14 @@ class App extends Component {
 
   get = () => {
     const { getAll } = this.props.actions;
+    let token = localStorage.getItem("token");
+    let decoded = jwt.decode(token, { complete: true });
+    let username = decoded.payload.username;
+
     axios
-      .get("http://localhost:8000/")
+      .get(`http://localhost:8000/${username}`)
       .then((response) => {
         getAll(response.data);
-        console.log(this.props.items);
       })
       .catch((error) => {
         console.log(error);
@@ -168,7 +185,7 @@ class App extends Component {
   }
 
   render() {
-    const { items, currentPage, numberPerPage, actions } = this.props;
+    const { items, currentPage, numberPerPage, actions, snackbar, snackbarMessage } = this.props;
     const showItems = this.drawList();
     let numberOfPages = Math.ceil(items.length / numberPerPage);
     return (
@@ -249,6 +266,15 @@ class App extends Component {
           >
             Remove Completed Tasks
           </Button>
+
+          <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          open={snackbar}
+          message={snackbarMessage}
+        />
         </div>
       </div>
     );
@@ -260,6 +286,9 @@ const mapStateToProps = (state) => {
     items: state.items,
     numberPerPage: state.numberPerPage,
     currentPage: state.currentPage,
+    loggedIn: state.loggedIn,
+    snackbar: state.snackbar,
+    snackbarMessage: state.snackbarMessage
   };
 };
 
@@ -277,6 +306,7 @@ const mapDispatchToProps = (dispatch) => {
         getAll,
         nextPage,
         prevPage,
+        snackbar
       },
       dispatch
     ),

@@ -1,23 +1,30 @@
 import React, { Component, createRef } from "react";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 import TextField from "@material-ui/core/TextField";
+import Snackbar from "@material-ui/core/Snackbar";
 import Button from "@material-ui/core/Button";
 import axios from "axios";
 
-export class login extends Component {
+import { login } from "../../redux/actions/logIn-logOut";
+import { snackbar } from "../../redux/actions/snackbar";
+
+class Login extends Component {
   idField = createRef();
   passField = createRef();
 
   authorisation = (e) => {
+    const { login, snackbar } = this.props.actions;
     e.preventDefault();
     let idField = this.idField.current.value;
     let passField = this.passField.current.value;
 
     if (!idField.trim() && !passField.trim()) {
-      alert("please enter username and password");
+      snackbar(true, "Please, enter username and password.");
     } else if (!passField.trim()) {
-      alert("please enter password");
+      this.setState({ open: true, message: "Please, enter password." });
     } else if (!idField.trim()) {
-      alert("please enter username");
+      this.setState({ open: true, message: "Please, enter username." });
     } else {
       let userObject = {
         // COMMENT hash getrequest for pass
@@ -29,21 +36,25 @@ export class login extends Component {
         .post("http://localhost:8000/login", userObject)
         .then((res) => {
           if (res.status === 200) {
-            localStorage.setItem('token', res.data.token);
+            localStorage.setItem("token", res.data.token);
             this.props.history.push("/");
           } else {
             const error = new Error(res.error);
             throw error;
           }
         })
+        .then(() => {
+          login();
+        })
         .catch((err) => {
           console.error(err);
-          alert("Error logging in please try again");
+          this.setState({ message: "Error logging in please try again." });
         });
     }
   };
 
   render() {
+    const { snackbar, snackbarMessage } = this.props;
     return (
       <section className="login">
         <h1>Login</h1>
@@ -70,13 +81,49 @@ export class login extends Component {
           variant="contained"
           size="small"
           color="primary"
-          onClick={(e) => this.authorisation(e)}
+          onClick={(e) => {
+            this.authorisation(e);
+            setTimeout(() => {
+              this.props.actions.snackbar(false, null);
+            }, 2000);
+          }}
         >
           Authorize
         </Button>
         <br />
         <span id="forgotPassword">Forgot Password</span>
+
+        <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          open={snackbar}
+          message={snackbarMessage}
+        />
       </section>
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    loggedIn: state.loggedIn,
+    snackbar: state.snackbar,
+    snackbarMessage: state.snackbarMessage
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(
+      {
+        login,
+        snackbar
+      },
+      dispatch
+    ),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -11,7 +11,14 @@ export const actionTypes = {
   SELECT_ALL: "SELECT_ALL",
   UNSELECT_ALL: "UNSELECT_ALL",
   REMOVE_ALL: "REMOVE_ALL",
-  GET_ALL: "GET_ALL"
+  GET_ALL: "GET_ALL",
+
+  // Login / Logout
+  LOG_IN: "LOG_IN",
+  LOG_OUT: "LOG_OUT",
+
+  // Snackbar
+  SNACKBAR: "SNACKBAR"
 };
 
 

@@ -41,8 +41,12 @@ code {
   align-items: center;
 }
 
-.navButton {
+.navButtonShow {
   padding: 14px 16px;
+}
+
+.navButtonHide {
+  visibility: hidden;
 }
 
 .header {

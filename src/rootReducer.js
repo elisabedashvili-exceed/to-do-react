@@ -4,6 +4,9 @@ const initialState = {
   items: [],
   numberPerPage: 10,
   currentPage: 1,
+  loggedIn: localStorage.getItem("token") ? true : false,
+  snackbar: false,
+  snackbarMessage: null
 };
 
 const reducer = (state = initialState, action) => {
@@ -23,7 +26,7 @@ const reducer = (state = initialState, action) => {
         currentPage: Math.ceil((items.length + 1) / numberPerPage),
       };
 
-    case actionTypes.CHECK_ITEM :
+    case actionTypes.CHECK_ITEM:
       const checkedItems = items.map((item) =>
         item._id !== action.id ? item : { ...item, checked: !item.checked }
       );
@@ -32,7 +35,7 @@ const reducer = (state = initialState, action) => {
         items: checkedItems,
       };
 
-    case actionTypes.EDIT_ITEM :
+    case actionTypes.EDIT_ITEM:
       const editedItems = items.map((item) =>
         item._id !== action.id ? item : { ...item, value: action.value }
       );
@@ -41,7 +44,7 @@ const reducer = (state = initialState, action) => {
         items: editedItems,
       };
 
-    case actionTypes.DELETE_ITEM :
+    case actionTypes.DELETE_ITEM:
       return {
         ...state,
         items: items.filter((item) => item._id !== action.id),
@@ -51,26 +54,26 @@ const reducer = (state = initialState, action) => {
             : currentPage,
       };
 
-    case actionTypes.NEXT_PAGE :
+    case actionTypes.NEXT_PAGE:
       return {
         ...state,
         currentPage: currentPage + 1,
       };
 
-    case actionTypes.PREV_PAGE :
+    case actionTypes.PREV_PAGE:
       return {
         ...state,
         currentPage: currentPage - 1,
       };
 
-    case actionTypes.SELECT_ALL : 
+    case actionTypes.SELECT_ALL:
       const selectedItems = items.map((item) => ({ ...item, checked: true }));
       return {
         ...state,
         items: selectedItems,
       };
 
-    case actionTypes.UNSELECT_ALL :
+    case actionTypes.UNSELECT_ALL:
       const unselectedItems = items.map((item) => ({
         ...item,
         checked: false,
@@ -80,7 +83,7 @@ const reducer = (state = initialState, action) => {
         items: unselectedItems,
       };
 
-    case actionTypes.REMOVE_ALL :  
+    case actionTypes.REMOVE_ALL:
       let numberOfPages = Math.ceil(items.length / numberPerPage);
       const checkItems = [];
       items.forEach((item) => {
@@ -97,11 +100,30 @@ const reducer = (state = initialState, action) => {
             : currentPage,
       };
 
-    case actionTypes.GET_ALL :
+    case actionTypes.GET_ALL:
       return {
         ...state,
         items: action.items,
       };
+
+    case actionTypes.LOG_IN:
+      return {
+        ...state,
+        loggedIn: true
+      };
+
+    case actionTypes.LOG_OUT:
+      return {
+        ...state,
+        loggedIn: false
+      };
+
+      case actionTypes.SNACKBAR:
+        return {
+          ...state,
+          snackbar: action.show,
+          snackbarMessage: action.message
+        };
 
     default:
       return state;
