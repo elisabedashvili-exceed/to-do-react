@@ -1,30 +1,30 @@
 import React, { Component, createRef } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import TextField from "@material-ui/core/TextField";
 import Snackbar from "@material-ui/core/Snackbar";
+import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import axios from "axios";
 
 import { login } from "../../redux/actions/logIn-logOut";
-import { snackbar } from "../../redux/actions/snackbar";
+import { showSnackbar } from "../../redux/actions/snackbar";
 
 class Login extends Component {
   idField = createRef();
   passField = createRef();
 
   authorisation = (e) => {
-    const { login, snackbar } = this.props.actions;
+    const { login, showSnackbar } = this.props.actions;
     e.preventDefault();
     let idField = this.idField.current.value;
     let passField = this.passField.current.value;
 
     if (!idField.trim() && !passField.trim()) {
-      snackbar(true, "Please, enter username and password.");
+      showSnackbar(true, "Please, enter username and password.");
     } else if (!passField.trim()) {
-      this.setState({ open: true, message: "Please, enter password." });
+      showSnackbar(true, "Please, enter password.");
     } else if (!idField.trim()) {
-      this.setState({ open: true, message: "Please, enter username." });
+      showSnackbar(true, "Please, enter username.");
     } else {
       let userObject = {
         // COMMENT hash getrequest for pass
@@ -48,13 +48,25 @@ class Login extends Component {
         })
         .catch((err) => {
           console.error(err);
-          this.setState({ message: "Error logging in please try again." });
+          showSnackbar(true, "Error logging in please try again.");
         });
     }
   };
 
+  handleKeyPress = (e) => {
+    const { showSnackbar } = this.props.actions;
+    if (e.key === "Enter") {
+      e.preventDefault();
+      this.authorisation(e);
+      setTimeout(() => {
+        showSnackbar(false, null);
+      }, 2000);
+    }
+  };
+
   render() {
-    const { snackbar, snackbarMessage } = this.props;
+    const { snackbarState, snackbarMessage } = this.props;
+    const { showSnackbar } = this.props.actions;
     return (
       <section className="login">
         <h1>Login</h1>
@@ -65,6 +77,7 @@ class Login extends Component {
             size="small"
             label="Enter your ID"
             variant="outlined"
+            onKeyPress={this.handleKeyPress}
           />
           <br />
           <label className="password">Password </label>
@@ -74,6 +87,7 @@ class Login extends Component {
             type="password"
             label="Enter your Password"
             variant="outlined"
+            onKeyPress={this.handleKeyPress}
           />
           <br />
         </div>
@@ -84,7 +98,7 @@ class Login extends Component {
           onClick={(e) => {
             this.authorisation(e);
             setTimeout(() => {
-              this.props.actions.snackbar(false, null);
+              showSnackbar(false, null);
             }, 2000);
           }}
         >
@@ -98,7 +112,7 @@ class Login extends Component {
             vertical: "bottom",
             horizontal: "left",
           }}
-          open={snackbar}
+          open={snackbarState}
           message={snackbarMessage}
         />
       </section>
@@ -109,7 +123,7 @@ class Login extends Component {
 const mapStateToProps = (state) => {
   return {
     loggedIn: state.loggedIn,
-    snackbar: state.snackbar,
+    snackbarState: state.snackbarState,
     snackbarMessage: state.snackbarMessage
   };
 };
@@ -119,7 +133,7 @@ const mapDispatchToProps = (dispatch) => {
     actions: bindActionCreators(
       {
         login,
-        snackbar
+        showSnackbar
       },
       dispatch
     ),

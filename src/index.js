@@ -7,7 +7,7 @@ import { SnackbarProvider } from "notistack";
 
 import * as serviceWorker from "./serviceWorker";
 import Login from "./components/pages/login";
-import { registration } from "./components/pages/registration";
+import Registration from "./components/pages/registration";
 import Header from "./components/header";
 import { Notfound } from "./components/pages/notFound";
 
@@ -32,7 +32,7 @@ ReactDOM.render(
           <Switch>
             <Route exact path="/" component={withAuth(App)} />
             <Route path="/login" component={Login} />
-            <Route path="/registration" component={registration} />
+            <Route path="/registration" component={Registration} />
             <Route component={Notfound} />
           </Switch>
         </div>

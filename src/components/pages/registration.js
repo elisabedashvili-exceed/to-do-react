@@ -1,22 +1,29 @@
 import React, { Component, createRef } from "react";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import Snackbar from "@material-ui/core/Snackbar";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import axios from "axios";
 
-export class registration extends Component {
+import { showSnackbar } from "../../redux/actions/snackbar";
+
+class Registration extends Component {
   idField = createRef();
   firstPassField = createRef();
   secondPassField = createRef();
 
-  submit = () => {
+  submit = (e) => {
+    const { showSnackbar } = this.props.actions;
+    e.preventDefault();
     if (
       this.firstPassField.current.value !== this.secondPassField.current.value
     ) {
-      alert("Passwords don't match");
+      showSnackbar(true, "Passwords don't match");
     } else if (this.firstPassField.current.value.length < 6) {
-      alert("Password: Minimum 6 symbols");
+      showSnackbar(true, "Password: Minimum 6 symbols");
     } else if (!this.idField.current.value.trim()) {
-      alert("Please, enter your username");
+      showSnackbar(true, "Please, enter your username");
     } else {
       let userObject = {
         username: this.idField.current.value,
@@ -26,21 +33,33 @@ export class registration extends Component {
         .post("http://localhost:8000/addUser", userObject)
         .then((res) => {
           if (res.data.name === "MongoError") {
-            alert("Username Taken");
+            showSnackbar(true, "Username Taken");
           } else {
             console.log("Successfully registered", res);
-            alert("Successfully registered");
+            this.idField.current.value = "";
+            this.firstPassField.current.value = "";
+            this.secondPassField.current.value = "";
+            showSnackbar(true, "Successfully registered");
           }
-
-          this.idField.current.value = "";
-          this.firstPassField.current.value = "";
-          this.secondPassField.current.value = "";
         })
         .catch((err) => console.log(err));
     }
   };
 
+  handleKeyPress = (e) => {
+    const { showSnackbar } = this.props.actions;
+    if (e.key === "Enter") {
+      e.preventDefault();
+      this.submit(e);
+      setTimeout(() => {
+        showSnackbar(false, null);
+      }, 2000);
+    }
+  };
+
   render() {
+    const { snackbarState, snackbarMessage } = this.props;
+    const { showSnackbar } = this.props.actions;
     return (
       <div className="login">
         <h1>Registration</h1>
@@ -52,6 +71,7 @@ export class registration extends Component {
             size="small"
             label="Enter your ID"
             variant="outlined"
+            onKeyPress={this.handleKeyPress}
           />
           <br />
           <label className="password">Password </label>
@@ -64,6 +84,7 @@ export class registration extends Component {
               type="password"
               autoComplete="current-password"
               variant="outlined"
+              onKeyPress={this.handleKeyPress}
             />
             <br />
             <label className="password">Repeat Password </label>
@@ -75,6 +96,7 @@ export class registration extends Component {
               type="password"
               autoComplete="current-password"
               variant="outlined"
+              onKeyPress={this.handleKeyPress}
             />
             <br />
           </form>
@@ -83,11 +105,44 @@ export class registration extends Component {
           variant="contained"
           size="large"
           color="primary"
-          onClick={() => this.submit()}
+          onClick={(e) => {
+            this.submit(e);
+            setTimeout(() => {
+              showSnackbar(false, null);
+            }, 2000);
+          }}
         >
           Submit
         </Button>
+        <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          open={snackbarState}
+          message={snackbarMessage}
+        />
       </div>
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    snackbarState: state.snackbarState,
+    snackbarMessage: state.snackbarMessage,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(
+      {
+        showSnackbar,
+      },
+      dispatch
+    ),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Registration);

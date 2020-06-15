@@ -6,7 +6,7 @@ import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import TextField from "@material-ui/core/TextField";
-import TodoItem from "./components/TodoItem";
+import { TodoItem } from "./components/TodoItem";
 import "./App.css";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
@@ -24,7 +24,7 @@ import {
   getAll,
 } from "./redux/actions/toDoItemRelated";
 import { nextPage, prevPage } from "./redux/actions/paginationButtons";
-import { snackbar } from "./redux/actions/snackbar";
+import { showSnackbar } from "./redux/actions/snackbar";
 
 class App extends Component {
   inputRef = createRef();
@@ -37,7 +37,7 @@ class App extends Component {
   };
 
   addItem = () => {
-    const { addItems, snackbar } = this.props.actions;
+    const { addItems, showSnackbar } = this.props.actions;
     let { value } = this.inputRef.current;
 
     let token = localStorage.getItem("token");
@@ -60,9 +60,9 @@ class App extends Component {
           console.log(err + " unable to save to database");
         });
     } else {
-      snackbar(true, "Please enter something :)")
+      showSnackbar(true, "Please enter something :)")
       setTimeout(() => {
-        snackbar(false, null)
+        showSnackbar(false, null)
       }, 2000);
     } 
   };
@@ -185,7 +185,8 @@ class App extends Component {
   }
 
   render() {
-    const { items, currentPage, numberPerPage, actions, snackbar, snackbarMessage } = this.props;
+    const { items, currentPage, numberPerPage, snackbarState, snackbarMessage } = this.props;
+    const { prevPage, nextPage, showSnackbar } = this.props.actions;
     const showItems = this.drawList();
     let numberOfPages = Math.ceil(items.length / numberPerPage);
     return (
@@ -219,6 +220,9 @@ class App extends Component {
                 remove={this.handleDeleteClick}
                 edit={this.handleEdit}
                 check={this.handleCheckboxClick}
+                showSnackbar={showSnackbar}
+                snackbarState={snackbarState}
+                snackbarMessage={snackbarMessage}
               />
             );
           })}
@@ -227,7 +231,7 @@ class App extends Component {
           className={currentPage <= 1 ? "hide" : "show"}
           fontSize="large"
           id="previous"
-          onClick={() => this.props.actions.prevPage()}
+          onClick={() => prevPage()}
         />
         <Button size="small" variant="outlined" color="primary">
           {currentPage}
@@ -240,7 +244,7 @@ class App extends Component {
           }
           fontSize="large"
           id="next"
-          onClick={() => actions.nextPage()}
+          onClick={() => nextPage()}
         />
         <br />
 
@@ -272,7 +276,7 @@ class App extends Component {
             vertical: "bottom",
             horizontal: "left",
           }}
-          open={snackbar}
+          open={snackbarState}
           message={snackbarMessage}
         />
         </div>
@@ -287,7 +291,7 @@ const mapStateToProps = (state) => {
     numberPerPage: state.numberPerPage,
     currentPage: state.currentPage,
     loggedIn: state.loggedIn,
-    snackbar: state.snackbar,
+    snackbarState: state.snackbarState,
     snackbarMessage: state.snackbarMessage
   };
 };
@@ -306,7 +310,7 @@ const mapDispatchToProps = (dispatch) => {
         getAll,
         nextPage,
         prevPage,
-        snackbar
+        showSnackbar
       },
       dispatch
     ),

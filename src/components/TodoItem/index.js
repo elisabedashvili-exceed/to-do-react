@@ -6,8 +6,9 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import TextField from "@material-ui/core/TextField";
 import DoneRoundedIcon from "@material-ui/icons/DoneRounded";
 import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
+import Snackbar from "@material-ui/core/Snackbar";
 
-class TodoItem extends Component {
+export class TodoItem extends Component {
   state = {
     editMode: false,
   };
@@ -23,18 +24,21 @@ class TodoItem extends Component {
   };
 
   handleSubmit = (e) => {
-    const { edit, item } = this.props;
+    const { edit, item, showSnackbar } = this.props;
     if (this.editRef.current.value.trim()) {
       edit(e, item._id, this.editRef.current.value);
       this.setState({ editMode: false });
     } else {
-      alert("Please enter something :)");
+      showSnackbar(true, "Please enter something :)")
+      setTimeout(() => {
+        showSnackbar(false, null)
+      }, 2000);
     }
   };
 
   render() {
     const { editMode } = this.state;
-    const { item, remove, check } = this.props;
+    const { item, remove, check, snackbarState, snackbarMessage } = this.props;
     return (
       <li>
         {editMode ? (
@@ -82,10 +86,17 @@ class TodoItem extends Component {
             >
               <DeleteIcon fontSize="small" />
             </IconButton>
+            <Snackbar
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              open={snackbarState}
+              message={snackbarMessage}
+            />
           </Fragment>
         )}
       </li>
     );
   }
 }
-export default TodoItem;

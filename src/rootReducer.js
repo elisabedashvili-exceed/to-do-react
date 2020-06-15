@@ -5,7 +5,7 @@ const initialState = {
   numberPerPage: 10,
   currentPage: 1,
   loggedIn: localStorage.getItem("token") ? true : false,
-  snackbar: false,
+  snackbarState: false,
   snackbarMessage: null
 };
 
@@ -121,7 +121,7 @@ const reducer = (state = initialState, action) => {
       case actionTypes.SNACKBAR:
         return {
           ...state,
-          snackbar: action.show,
+          snackbarState: action.show,
           snackbarMessage: action.message
         };
 

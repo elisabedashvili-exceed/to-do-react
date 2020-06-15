@@ -1,6 +1,6 @@
 import { actionTypes } from "./actionTypes";
 
-export const snackbar = (show, message) => {
+export const showSnackbar = (show, message) => {
   return {
     type: actionTypes.SNACKBAR,
     show,
