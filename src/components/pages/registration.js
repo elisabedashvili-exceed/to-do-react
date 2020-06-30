@@ -62,7 +62,7 @@ class Registration extends Component {
     const { showSnackbar } = this.props.actions;
     return (
       <div className="login">
-        <h1>Registration</h1>
+        <h1>Registr</h1>
         <div className="registrationBody">
           <label className="ID">ID </label>
           <TextField
