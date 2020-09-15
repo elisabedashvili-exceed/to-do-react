@@ -35,14 +35,15 @@ class Login extends Component {
       axios
         .post("http://localhost:8000/login", userObject)
         .then((res) => {
-          if (res.status === 200) {
-            localStorage.setItem("token", res.data.token);
-            this.props.history.push("/");
-          } else {
-            const error = new Error(res.error);
-            throw error;
-          }
-        })
+          if (res.data === 'Incorrect password') {
+						showSnackbar(true, 'Incorrect password');
+					} else if (res.data === 'No Users Found') {
+						showSnackbar(true, 'No Users Found');
+					} else {
+						localStorage.setItem('token', res.data.token);
+						this.props.history.push('/');
+					}
+				})
         .then(() => {
           login();
         })
