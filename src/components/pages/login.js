@@ -36,17 +36,15 @@ class Login extends Component {
         .post("http://localhost:8000/login", userObject)
         .then((res) => {
           if (res.data === 'Incorrect password') {
-						showSnackbar(true, 'Incorrect password');
-					} else if (res.data === 'No Users Found') {
-						showSnackbar(true, 'No Users Found');
-					} else {
-						localStorage.setItem('token', res.data.token);
-						this.props.history.push('/');
-					}
-				})
-        .then(() => {
-          login();
-        })
+		showSnackbar(true, 'Incorrect password');
+	  } else if (res.data === 'No Users Found') {
+		showSnackbar(true, 'No Users Found');
+	  } else {
+		login();
+		localStorage.setItem('token', res.data.token);
+		this.props.history.push('/');
+	  }
+      	})
         .catch((err) => {
           console.error(err);
           showSnackbar(true, "Error logging in please try again.");
